@@ -43,6 +43,29 @@ module.exports = {
       });
     }
   },
+  // list all data
+  filter: async (req, res) => {
+    try {
+      // get data from database
+      const area = await Area.findAll({
+        attributes: ["id", "namaArea"],
+        where: {
+          // ...(req.query.area && { areaId: req.query.area }),
+        },
+      });
+      return res.status(200).json({
+        status: 200,
+        message: "OK",
+        data: { area },
+      });
+    } catch (err) {
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
   //   get data by id
   getById: async (req, res) => {
     try {

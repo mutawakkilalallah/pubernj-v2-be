@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const {
   list,
+  filter,
   getById,
   create,
   update,
@@ -10,6 +11,7 @@ const {
 const dropspot = Router();
 
 dropspot.get("/", list);
+dropspot.get("/filter", filter);
 dropspot.get("/:id", getById);
 dropspot.post("/", create);
 dropspot.put("/:id", update);

@@ -17,7 +17,7 @@ app.use(
     origin: "*",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     exposedHeaders:
-      "x_total_data, x_page_limit, x_total_page, x_current_page, x-token",
+      "x_total_data, x_page_limit, x_total_page, x_current_page, x-auth",
   })
 );
 
