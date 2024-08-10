@@ -55,6 +55,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Dropspot",
+      tableName: "dropspots",
     }
   );
   return Dropspot;
