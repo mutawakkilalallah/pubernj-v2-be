@@ -1,6 +1,14 @@
 const { Op } = require("sequelize");
-const { Santri } = require("../../models");
+const {
+  Dropspot,
+  Santri,
+  Kepulangan,
+  Tujuan,
+  Tagihan,
+  sequelize,
+} = require("../../models");
 const axios = require("axios");
+const santriSchema = require("../validation/santri-schema");
 
 async function processDataSantri(uuid) {
   try {
@@ -166,6 +174,91 @@ module.exports = {
         data: data,
       });
     } catch (err) {
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
+  daftarRombongan: async (req, res) => {
+    const transaction = await sequelize.transaction();
+    try {
+      const rombongan = await Kepulangan.findOne({
+        where: {
+          santriUuid: req.params.uuid,
+        },
+      });
+      if (rombongan) {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: "santri sudah terdaftar sebagai rombongan",
+        });
+      }
+      var { error, value } = santriSchema.daftarRombongan.validate(req.body);
+      if (error) {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: error.message,
+        });
+      }
+      if (value.statusKepulangan == "T" && value.statusRombongan == "Y") {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: "santri rombongan harus berstatus pulang",
+        });
+      }
+      if (value.statusKepulangan == "Y" && value.statusRombongan == "Y") {
+        const drop = await Dropspot.findOne({
+          where: {
+            id: value.dropspotId,
+          },
+        });
+        await Kepulangan.create(
+          {
+            santriUuid: req.params.uuid,
+            statusKepulangan: value.statusKepulangan,
+            statusRombongan: value.statusRombongan,
+          },
+          { transaction }
+        );
+        await Tujuan.create(
+          {
+            santriUuid: req.params.uuid,
+            dropspotId: value.dropspotId,
+            isAktif: "Y",
+          },
+          { transaction }
+        );
+        await Tagihan.create(
+          {
+            santriUuid: req.params.uuid,
+            tagihan: drop.harga,
+            totalBayar: 0,
+            status: "belum-lunas",
+          },
+          { transaction }
+        );
+      } else {
+        await Kepulangan.create(
+          {
+            santriUuid: req.params.uuid,
+            statusKepulangan: value.statusKepulangan,
+            statusRombongan: value.statusRombongan,
+          },
+          { transaction }
+        );
+      }
+      await transaction.commit();
+      return res.status(201).json({
+        status: 201,
+        message: "CREATED",
+      });
+    } catch (err) {
+      await transaction.rollback();
       return res.status(500).json({
         status: 500,
         message: "INTERNAL SERVER ERROR",

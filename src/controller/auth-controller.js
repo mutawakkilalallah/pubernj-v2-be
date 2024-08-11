@@ -64,6 +64,13 @@ module.exports = {
           error: "niup harus di isi",
         });
       }
+      if (req.params.niup.length != 11) {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: "format niup tidak sesuai",
+        });
+      }
 
       const santri = await axios.get(
         `${process.env.PEDATREN_URL}/person/niup/${req.params.niup}`,

@@ -1,17 +1,17 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class Dropspot extends Model {
+  class Tujuan extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Dropspot.belongsTo(models.Area, { as: "area" });
+      // define association here
     }
   }
-  Dropspot.init(
+  Tujuan.init(
     {
       id: {
         allowNull: false,
@@ -19,37 +19,37 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
-      namaDropspot: {
+      santriUuid: {
         allowNull: false,
-        type: DataTypes.STRING,
+        type: DataTypes.UUID,
       },
-      cakupan: {
-        allowNull: true,
-        type: DataTypes.TEXT,
-      },
-      harga: {
-        allowNull: true,
-        type: DataTypes.BIGINT,
-      },
-      grup: {
-        allowNull: false,
-        type: DataTypes.ENUM,
-        values: ["jatim", "jawa-non-jatim", "luar-jawa", "luar-pulau"],
-      },
-      areaId: {
+      dropspotId: {
         allowNull: false,
         type: DataTypes.INTEGER,
         references: {
-          model: "Areas",
+          model: "dropspots",
           key: "id",
         },
+      },
+      isAktif: {
+        allowNull: false,
+        type: DataTypes.ENUM,
+        values: ["Y", "T"],
+      },
+      createdAt: {
+        allowNull: false,
+        type: DataTypes.DATE,
+      },
+      updatedAt: {
+        allowNull: false,
+        type: DataTypes.DATE,
       },
     },
     {
       sequelize,
-      modelName: "Dropspot",
-      tableName: "dropspots",
+      modelName: "Tujuan",
+      tableName: "tujuans",
     }
   );
-  return Dropspot;
+  return Tujuan;
 };

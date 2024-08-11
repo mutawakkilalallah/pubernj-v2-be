@@ -2,37 +2,29 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Dropspots", {
+    await queryInterface.createTable("Tagihans", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      namaDropspot: {
+      santriUuid: {
         allowNull: false,
-        type: Sequelize.STRING,
+        type: Sequelize.UUID,
       },
-      cakupan: {
-        allowNull: true,
-        type: Sequelize.TEXT,
-      },
-      harga: {
+      tagihan: {
         allowNull: false,
         type: Sequelize.BIGINT,
       },
-      grup: {
+      totalBayar: {
+        allowNull: false,
+        type: Sequelize.BIGINT,
+      },
+      status: {
         allowNull: false,
         type: Sequelize.ENUM,
-        values: ["jatim", "jawa-non-jatim", "luar-jawa", "luar-pulau"],
-      },
-      areaId: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-        references: {
-          model: "Areas",
-          key: "id",
-        },
+        values: ["lunas", "belum-lunas"],
       },
       createdAt: {
         allowNull: false,
@@ -45,6 +37,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Dropspots");
+    await queryInterface.dropTable("Tagihans");
   },
 };
