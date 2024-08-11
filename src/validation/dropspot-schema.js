@@ -4,10 +4,8 @@ const dropspotSchema = {
   addUp: Joi.object({
     namaDropspot: Joi.string().required(),
     cakupan: Joi.optional(),
-    tglBerangkatPutra: Joi.optional(),
-    tglBerangkatPutri: Joi.optional(),
-    jamBerangkatPutra: Joi.optional(),
-    jamBerangkatPutri: Joi.optional(),
+    harga: Joi.required(),
+    grup: Joi.required(),
     areaId: Joi.required(),
   }),
 };
