@@ -24,9 +24,9 @@ app.use(
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// app.get("/", async (req, res) => {
-//   res.send(":v");
-// });
+app.get("/", async (req, res) => {
+  res.send(":v");
+});
 
 app.use("/api/v2", apiRouter);
 
