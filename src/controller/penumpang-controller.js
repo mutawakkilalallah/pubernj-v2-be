@@ -1,5 +1,12 @@
 const { Op } = require("sequelize");
-const { Penumpang, Santri, Tujuan, Dropspot, Area } = require("../../models");
+const {
+  Penumpang,
+  Santri,
+  Tujuan,
+  Dropspot,
+  Area,
+  sequelize,
+} = require("../../models");
 const penumpangSchema = require("../validation/penumpang-schema");
 
 module.exports = {
@@ -214,6 +221,67 @@ module.exports = {
         data: result,
       });
     } catch (err) {
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
+  //   daftar penumpang
+  daftarPenumpang: async (req, res) => {
+    const transaction = await sequelize.transaction();
+    try {
+      // get data from database
+      const data = await Penumpang.findOne({
+        where: {
+          santriUuid: req.params.uuid,
+        },
+      });
+      if (!data) {
+        return res.status(404).json({
+          status: 404,
+          message: "NOT FOUND",
+          error: `penumpang tidak ditemukan`,
+        });
+      }
+      if (data.statusRombongan == "Y") {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: "santri sudah terdaftar sebagai rombongan",
+        });
+      }
+      const { error, value } = penumpangSchema.addDrop.validate(req.body);
+      if (error) {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: error.message,
+        });
+      }
+      await data.update(
+        {
+          statusKepulangan: "Y",
+          statusRombongan: "Y",
+        },
+        { transaction }
+      );
+      const result = await Tujuan.create(
+        {
+          penumpangId: data.id,
+          dropspotId: value.dropspotId,
+        },
+        { transaction }
+      );
+      await transaction.commit();
+      return res.status(201).json({
+        status: 201,
+        message: "CREATED",
+        data: result,
+      });
+    } catch (err) {
+      await transaction.rollback();
       return res.status(500).json({
         status: 500,
         message: "INTERNAL SERVER ERROR",
