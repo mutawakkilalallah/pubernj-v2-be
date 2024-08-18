@@ -3,11 +3,12 @@ const {
   statusKepulangan,
   statusRombongan,
   addDropspot,
+  list,
 } = require("../controller/penumpang-controller");
 
 const penumpang = Router();
 
-// penumpang.get("/", list);
+penumpang.get("/", list);
 // penumpang.get("/:id", getById);
 penumpang.put("/status-kepulangan/:uuid", statusKepulangan);
 penumpang.put("/status-rombongan/:uuid", statusRombongan);
