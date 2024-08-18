@@ -1,16 +1,16 @@
 const { Op } = require("sequelize");
 const {
-  Dropspot,
   Santri,
-  Kepulangan,
+  Penumpang,
   Tujuan,
-  Tagihan,
+  Dropspot,
+  Area,
   sequelize,
 } = require("../../models");
 const axios = require("axios");
-const santriSchema = require("../validation/santri-schema");
 
 async function processDataSantri(uuid) {
+  const transaction = await sequelize.transaction();
   try {
     const response = await axios.get(
       `${process.env.PEDATREN_URL}/person/${uuid}`,
@@ -20,45 +20,57 @@ async function processDataSantri(uuid) {
         },
       }
     );
-    console.log(response.data.nama_lengkap);
 
-    await Santri.create({
-      uuid: response.data.uuid,
-      niup: response.data.warga_pesantren.niup
-        ? response.data.warga_pesantren.niup
-        : null,
-      nama_lengkap: response.data.nama_lengkap,
-      jenis_kelamin: response.data.jenis_kelamin,
-      negara: response.data.negara ? response.data.negara : null,
-      provinsi: response.data.provinsi ? response.data.provinsi : null,
-      kabupaten: response.data.kabupaten ? response.data.kabupaten : null,
-      kecamatan: response.data.kecamatan ? response.data.kecamatan : null,
-      wilayah: response.data.domisili_santri
-        ? response.data.domisili_santri[
-            response.data.domisili_santri.length - 1
-          ].wilayah
-        : null,
-      alias_wilayah: response.data.domisili_santri
-        ? response.data.domisili_santri[
-            response.data.domisili_santri.length - 1
-          ].wilayah
-            .toLowerCase()
-            .replace(/ /g, "-")
-        : null,
-      blok: response.data.domisili_santri
-        ? response.data.domisili_santri[
-            response.data.domisili_santri.length - 1
-          ].blok
-        : null,
-      id_blok: response.data.domisili_santri
-        ? response.data.domisili_santri[
-            response.data.domisili_santri.length - 1
-          ].id_blok
-        : null,
-      raw: JSON.stringify(response.data),
-    });
+    await Santri.create(
+      {
+        uuid: response.data.uuid,
+        niup: response.data.warga_pesantren.niup
+          ? response.data.warga_pesantren.niup
+          : null,
+        nama_lengkap: response.data.nama_lengkap,
+        jenis_kelamin: response.data.jenis_kelamin,
+        negara: response.data.negara ? response.data.negara : null,
+        provinsi: response.data.provinsi ? response.data.provinsi : null,
+        kabupaten: response.data.kabupaten ? response.data.kabupaten : null,
+        kecamatan: response.data.kecamatan ? response.data.kecamatan : null,
+        wilayah: response.data.domisili_santri
+          ? response.data.domisili_santri[
+              response.data.domisili_santri.length - 1
+            ].wilayah
+          : null,
+        alias_wilayah: response.data.domisili_santri
+          ? response.data.domisili_santri[
+              response.data.domisili_santri.length - 1
+            ].wilayah
+              .toLowerCase()
+              .replace(/ /g, "-")
+          : null,
+        blok: response.data.domisili_santri
+          ? response.data.domisili_santri[
+              response.data.domisili_santri.length - 1
+            ].blok
+          : null,
+        id_blok: response.data.domisili_santri
+          ? response.data.domisili_santri[
+              response.data.domisili_santri.length - 1
+            ].id_blok
+          : null,
+        raw: JSON.stringify(response.data),
+      },
+      { transaction }
+    );
+
+    await Penumpang.create(
+      {
+        santriUuid: response.data.uuid,
+      },
+      { transaction }
+    );
+
+    await transaction.commit();
     return true;
   } catch (err) {
+    await transaction.rollback();
     console.log(uuid + " : " + err.message);
     return false;
   }
@@ -76,7 +88,8 @@ module.exports = {
         },
         params: {
           wilayah: "dalbar",
-          blok: 52,
+          // blok: 52,
+          // limit: 5,
           disable_pagination: true,
         },
       });
@@ -128,6 +141,18 @@ module.exports = {
           },
           // ...(req.query.area && { areaId: req.query.area }),
         },
+        include: [
+          {
+            model: Penumpang,
+            attributes: [
+              "id",
+              "santriUuid",
+              "statusKepulangan",
+              "statusRombongan",
+            ],
+            as: "penumpang",
+          },
+        ],
         limit,
         offset,
       });
@@ -159,6 +184,26 @@ module.exports = {
         where: {
           uuid: req.params.uuid,
         },
+        include: [
+          {
+            model: Penumpang,
+            as: "penumpang",
+            include: [
+              {
+                model: Tujuan,
+                as: "tujuan",
+                include: {
+                  model: Dropspot,
+                  as: "dropspot",
+                  include: {
+                    model: Area,
+                    as: "area",
+                  },
+                },
+              },
+            ],
+          },
+        ],
       });
       if (!data) {
         return res.status(404).json({
@@ -174,91 +219,6 @@ module.exports = {
         data: data,
       });
     } catch (err) {
-      return res.status(500).json({
-        status: 500,
-        message: "INTERNAL SERVER ERROR",
-        error: err.message,
-      });
-    }
-  },
-  daftarRombongan: async (req, res) => {
-    const transaction = await sequelize.transaction();
-    try {
-      const rombongan = await Kepulangan.findOne({
-        where: {
-          santriUuid: req.params.uuid,
-        },
-      });
-      if (rombongan) {
-        return res.status(400).json({
-          status: 400,
-          message: "BAD REQUEST",
-          error: "santri sudah terdaftar sebagai rombongan",
-        });
-      }
-      var { error, value } = santriSchema.daftarRombongan.validate(req.body);
-      if (error) {
-        return res.status(400).json({
-          status: 400,
-          message: "BAD REQUEST",
-          error: error.message,
-        });
-      }
-      if (value.statusKepulangan == "T" && value.statusRombongan == "Y") {
-        return res.status(400).json({
-          status: 400,
-          message: "BAD REQUEST",
-          error: "santri rombongan harus berstatus pulang",
-        });
-      }
-      if (value.statusKepulangan == "Y" && value.statusRombongan == "Y") {
-        const drop = await Dropspot.findOne({
-          where: {
-            id: value.dropspotId,
-          },
-        });
-        await Kepulangan.create(
-          {
-            santriUuid: req.params.uuid,
-            statusKepulangan: value.statusKepulangan,
-            statusRombongan: value.statusRombongan,
-          },
-          { transaction }
-        );
-        await Tujuan.create(
-          {
-            santriUuid: req.params.uuid,
-            dropspotId: value.dropspotId,
-            isAktif: "Y",
-          },
-          { transaction }
-        );
-        await Tagihan.create(
-          {
-            santriUuid: req.params.uuid,
-            tagihan: drop.harga,
-            totalBayar: 0,
-            status: "belum-lunas",
-          },
-          { transaction }
-        );
-      } else {
-        await Kepulangan.create(
-          {
-            santriUuid: req.params.uuid,
-            statusKepulangan: value.statusKepulangan,
-            statusRombongan: value.statusRombongan,
-          },
-          { transaction }
-        );
-      }
-      await transaction.commit();
-      return res.status(201).json({
-        status: 201,
-        message: "CREATED",
-      });
-    } catch (err) {
-      await transaction.rollback();
       return res.status(500).json({
         status: 500,
         message: "INTERNAL SERVER ERROR",

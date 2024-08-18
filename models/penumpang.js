@@ -1,17 +1,18 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class Tagihan extends Model {
+  class Penumpang extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Penumpang.hasMany(models.Tujuan, { as: "tujuan" });
+      // Penumpang.belongsTo(models.Santri, { as: "santri" });
     }
   }
-  Tagihan.init(
+  Penumpang.init(
     {
       id: {
         allowNull: false,
@@ -23,18 +24,33 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         type: DataTypes.UUID,
       },
+      statusKepulangan: {
+        allowNull: false,
+        type: DataTypes.ENUM,
+        values: ["Y", "T"],
+        defaultValue: "T",
+      },
+      statusRombongan: {
+        allowNull: false,
+        type: DataTypes.ENUM,
+        values: ["Y", "T"],
+        defaultValue: "T",
+      },
       tagihan: {
         allowNull: false,
         type: DataTypes.BIGINT,
+        defaultValue: 0,
       },
       totalBayar: {
         allowNull: false,
         type: DataTypes.BIGINT,
+        defaultValue: 0,
       },
-      status: {
+      statusPembayaran: {
         allowNull: false,
         type: DataTypes.ENUM,
-        values: ["lunas", "belum-lunas"],
+        values: ["belum-lunas", "kurang", "lunas", "lebih"],
+        defaultValue: "belum-lunas",
       },
       createdAt: {
         allowNull: false,
@@ -47,9 +63,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "Tagihan",
-      tableName: "tagihans",
+      modelName: "Penumpang",
+      tableName: "penumpangs",
     }
   );
-  return Tagihan;
+  return Penumpang;
 };

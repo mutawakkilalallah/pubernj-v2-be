@@ -9,9 +9,13 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      santriUuid: {
+      penumpangId: {
         allowNull: false,
-        type: Sequelize.UUID,
+        type: Sequelize.INTEGER,
+        references: {
+          model: "penumpangs",
+          key: "id",
+        },
       },
       dropspotId: {
         allowNull: false,
@@ -25,6 +29,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.ENUM,
         values: ["Y", "T"],
+        defaultValue: "Y",
       },
       createdAt: {
         allowNull: false,

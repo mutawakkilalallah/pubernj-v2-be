@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Tujuan.belongsTo(models.Dropspot, { as: "dropspot" });
     }
   }
   Tujuan.init(
@@ -19,9 +19,13 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
-      santriUuid: {
+      penumpangId: {
         allowNull: false,
-        type: DataTypes.UUID,
+        type: DataTypes.INTEGER,
+        references: {
+          model: "penumpangs",
+          key: "id",
+        },
       },
       dropspotId: {
         allowNull: false,
@@ -35,6 +39,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         type: DataTypes.ENUM,
         values: ["Y", "T"],
+        defaultValue: "Y",
       },
       createdAt: {
         allowNull: false,

@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Tagihans", {
+    await queryInterface.createTable("Penumpangs", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -13,18 +13,33 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID,
       },
+      statusKepulangan: {
+        allowNull: false,
+        type: Sequelize.ENUM,
+        values: ["Y", "T"],
+        defaultValue: "T",
+      },
+      statusRombongan: {
+        allowNull: false,
+        type: Sequelize.ENUM,
+        values: ["Y", "T"],
+        defaultValue: "T",
+      },
       tagihan: {
         allowNull: false,
         type: Sequelize.BIGINT,
+        defaultValue: 0,
       },
       totalBayar: {
         allowNull: false,
         type: Sequelize.BIGINT,
+        defaultValue: 0,
       },
-      status: {
+      statusPembayaran: {
         allowNull: false,
         type: Sequelize.ENUM,
-        values: ["lunas", "belum-lunas"],
+        values: ["belum-lunas", "kurang", "lunas", "lebih"],
+        defaultValue: "belum-lunas",
       },
       createdAt: {
         allowNull: false,
@@ -37,6 +52,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Tagihans");
+    await queryInterface.dropTable("Penumpangs");
   },
 };
