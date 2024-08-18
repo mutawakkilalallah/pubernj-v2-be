@@ -13,6 +13,9 @@ module.exports = {
       const offset = 0 + (page - 1) * limit;
       // get data from database
       const data = await Penumpang.findAndCountAll({
+        where: {
+          statusRombongan: "Y",
+        },
         include: [
           {
             model: Santri,
