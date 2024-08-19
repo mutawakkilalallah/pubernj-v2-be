@@ -1,43 +1,65 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class Area extends Model {
+  class Santri extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Area.hasMany(models.Dropspot, { as: "dropspot" });
+      Santri.hasOne(models.Penumpang, {
+        as: "penumpang",
+        foreignKey: "santriUuid",
+      });
     }
   }
-  Area.init(
+  Santri.init(
     {
-      id: {
+      uuid: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUIDV4,
       },
-      namaArea: {
+      niup: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      nama_lengkap: {
+        type: DataTypes.STRING,
         allowNull: false,
-        type: DataTypes.STRING,
       },
-      picInt: {
-        allowNull: true,
+      negara: {
         type: DataTypes.STRING,
+        allowNull: true,
       },
-      hpPicInt: {
-        allowNull: true,
+      provinsi: {
         type: DataTypes.STRING,
+        allowNull: true,
       },
-      picExt: {
-        allowNull: true,
+      kecamatan: {
         type: DataTypes.STRING,
+        allowNull: true,
       },
-      hpPicExt: {
-        allowNull: true,
+      alias_wilayah: {
         type: DataTypes.STRING,
+        allowNull: true,
+      },
+      wilayah: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      id_blok: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      blok: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      raw: {
+        type: DataTypes.TEXT,
+        allowNull: true,
       },
       createdAt: {
         allowNull: false,
@@ -50,9 +72,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "Area",
-      tableName: "areas",
+      modelName: "Santri",
+      tableName: "santris",
     }
   );
-  return Area;
+  return Santri;
 };

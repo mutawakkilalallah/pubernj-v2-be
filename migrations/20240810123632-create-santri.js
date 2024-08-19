@@ -2,32 +2,51 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("areas", {
-      id: {
+    await queryInterface.createTable("santris", {
+      uuid: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
       },
-      namaArea: {
+      niup: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      nama_lengkap: {
+        type: Sequelize.STRING,
         allowNull: false,
-        type: Sequelize.STRING,
       },
-      picInt: {
-        allowNull: true,
+      negara: {
         type: Sequelize.STRING,
+        allowNull: true,
       },
-      hpPicInt: {
-        allowNull: true,
+      provinsi: {
         type: Sequelize.STRING,
+        allowNull: true,
       },
-      picExt: {
-        allowNull: true,
+      kecamatan: {
         type: Sequelize.STRING,
+        allowNull: true,
       },
-      hpPicExt: {
-        allowNull: true,
+      alias_wilayah: {
         type: Sequelize.STRING,
+        allowNull: true,
+      },
+      wilayah: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      id_blok: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      blok: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      raw: {
+        type: Sequelize.TEXT,
+        allowNull: true,
       },
       createdAt: {
         allowNull: false,
@@ -40,6 +59,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("areas");
+    await queryInterface.dropTable("santris");
   },
 };

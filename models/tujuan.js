@@ -1,17 +1,17 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class Area extends Model {
+  class Tujuan extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Area.hasMany(models.Dropspot, { as: "dropspot" });
+      Tujuan.belongsTo(models.Dropspot, { as: "dropspot" });
     }
   }
-  Area.init(
+  Tujuan.init(
     {
       id: {
         allowNull: false,
@@ -19,25 +19,27 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
-      namaArea: {
+      penumpangId: {
         allowNull: false,
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
+        references: {
+          model: "penumpangs",
+          key: "id",
+        },
       },
-      picInt: {
-        allowNull: true,
-        type: DataTypes.STRING,
+      dropspotId: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+        references: {
+          model: "dropspots",
+          key: "id",
+        },
       },
-      hpPicInt: {
-        allowNull: true,
-        type: DataTypes.STRING,
-      },
-      picExt: {
-        allowNull: true,
-        type: DataTypes.STRING,
-      },
-      hpPicExt: {
-        allowNull: true,
-        type: DataTypes.STRING,
+      isAktif: {
+        allowNull: false,
+        type: DataTypes.ENUM,
+        values: ["Y", "T"],
+        defaultValue: "Y",
       },
       createdAt: {
         allowNull: false,
@@ -50,9 +52,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "Area",
-      tableName: "areas",
+      modelName: "Tujuan",
+      tableName: "tujuans",
     }
   );
-  return Area;
+  return Tujuan;
 };

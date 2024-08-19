@@ -27,22 +27,15 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         type: DataTypes.TEXT,
       },
-      tglBerangkatPutra: {
+      harga: {
         allowNull: true,
-        type: DataTypes.DATE,
+        type: DataTypes.BIGINT,
       },
-      tglBerangkatPutri: {
-        allowNull: true,
-        type: DataTypes.DATE,
+      grup: {
+        allowNull: false,
+        type: DataTypes.ENUM,
+        values: ["jatim", "jawa-non-jatim", "luar-jawa", "luar-pulau"],
       },
-      // jamBerangkatPutra: {
-      //   allowNull: true,
-      //   type: DataTypes.TIME,
-      // },
-      // jamBerangkatPutri: {
-      //   allowNull: true,
-      //   type: DataTypes.TIME,
-      // },
       areaId: {
         allowNull: false,
         type: DataTypes.INTEGER,
@@ -55,6 +48,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Dropspot",
+      tableName: "dropspots",
     }
   );
   return Dropspot;

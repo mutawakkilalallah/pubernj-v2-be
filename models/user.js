@@ -1,43 +1,65 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class Area extends Model {
+  class User extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Area.hasMany(models.Dropspot, { as: "dropspot" });
+      // define association here
     }
   }
-  Area.init(
+  User.init(
     {
-      id: {
+      uuid: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+      },
+      nama_lengkap: {
+        allowNull: false,
+        type: DataTypes.STRING,
+      },
+      niup: {
+        allowNull: false,
+        type: DataTypes.BIGINT,
+      },
+      jenis_kelamin: {
+        allowNull: false,
+        type: DataTypes.ENUM,
+        values: ["L", "P"],
+      },
+      id_blok: {
+        allowNull: true,
         type: DataTypes.INTEGER,
       },
-      namaArea: {
+      blok: {
+        allowNull: true,
+        type: DataTypes.STRING,
+      },
+      alias_wilayah: {
+        allowNull: true,
+        type: DataTypes.STRING,
+      },
+      wilayah: {
+        allowNull: true,
+        type: DataTypes.STRING,
+      },
+      username: {
         allowNull: false,
         type: DataTypes.STRING,
       },
-      picInt: {
-        allowNull: true,
+      password: {
+        allowNull: false,
         type: DataTypes.STRING,
       },
-      hpPicInt: {
-        allowNull: true,
-        type: DataTypes.STRING,
-      },
-      picExt: {
-        allowNull: true,
-        type: DataTypes.STRING,
-      },
-      hpPicExt: {
-        allowNull: true,
-        type: DataTypes.STRING,
+      role: {
+        allowNull: false,
+        type: DataTypes.ENUM,
+        values: ["sysadmin", "admin", "supervisor", "wilayah", "daerah"],
       },
       createdAt: {
         allowNull: false,
@@ -50,9 +72,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "Area",
-      tableName: "areas",
+      modelName: "User",
+      tableName: "users",
     }
   );
-  return Area;
+  return User;
 };
