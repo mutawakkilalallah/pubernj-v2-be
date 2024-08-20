@@ -26,5 +26,5 @@ jobs:
             git checkout dev
             git pull
             npm install
-            npx sequelize-cli db:migrate
+            npx sequelize db:migrate
             pm2 start 1
