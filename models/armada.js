@@ -37,6 +37,20 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BIGINT,
         allowNull: true,
       },
+      isKloter: {
+        type: DataTypes.ENUM,
+        allowNull: false,
+        values: ["Y", "T"],
+        defaultValue: "T",
+      },
+      namaKloter: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      jadwalKeberangkatan: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
       dropspotId: {
         type: DataTypes.INTEGER,
         allowNull: false,

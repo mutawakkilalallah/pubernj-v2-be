@@ -36,6 +36,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM,
         values: ["jatim", "jawa-non-jatim", "luar-jawa", "luar-pulau"],
       },
+      jadwalKeberangkatan: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: "2024-09-12 06:00:00",
+      },
       areaId: {
         allowNull: false,
         type: DataTypes.INTEGER,

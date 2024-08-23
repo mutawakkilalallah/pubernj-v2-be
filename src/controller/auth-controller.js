@@ -39,7 +39,7 @@ module.exports = {
       }
       user.password = null;
       const token = await JWT.sign({ user }, process.env.SECRET_KEY, {
-        expiresIn: "1h",
+        expiresIn: "7d",
       });
       return res.status(200).json({
         status: 200,

@@ -8,6 +8,8 @@ const armadaRouter = require("./armada");
 const pendampingRouter = require("./pendamping");
 const transportRouter = require("./transport");
 const ruteRouter = require("./rute");
+const kloterRouter = require("./kloter");
+const ticketRouter = require("./ticket");
 
 const auth = require("../../middleware/authentication");
 
@@ -22,5 +24,7 @@ router.use("/armada", auth, armadaRouter);
 router.use("/pendamping", auth, pendampingRouter);
 router.use("/transportasi", auth, transportRouter);
 router.use("/rute", auth, ruteRouter);
+router.use("/kloter", auth, kloterRouter);
+router.use("/ticket", auth, ticketRouter);
 
 module.exports = router;
