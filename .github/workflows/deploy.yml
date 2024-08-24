@@ -29,11 +29,13 @@ jobs:
           target: "/var/www/html/pubernj"
           port: ${{ secrets.PROD_SERVER_PORT }}
           script: |
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh
             cd /home/pubernj/pubernj-v2-be/
             pm2 stop 1
             git checkout dev
             git pull
             npm install
-            npm install -g npx # Install npx secara manual
+            export PATH=$PATH:/home/pubernj/.nvm/versions/node/v18.20.4/bin
             npx sequelize db:migrate
             pm2 start 1
