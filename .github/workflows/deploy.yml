@@ -36,6 +36,5 @@ jobs:
             git checkout dev
             git pull
             npm install
-            export PATH=$PATH:/home/pubernj/.nvm/versions/node/v18.20.4/bin
             npx sequelize db:migrate
             pm2 start 1
