@@ -39,6 +39,12 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         type: DataTypes.STRING,
       },
+      isAktif: {
+        type: DataTypes.ENUM,
+        allowNull: false,
+        values: ["Y", "T"],
+        defaultValue: "Y",
+      },
       createdAt: {
         allowNull: false,
         type: DataTypes.DATE,

@@ -7,6 +7,7 @@ const ketuntasanSchema = {
     statusTrue: Joi.string().required(),
     statusFalse: Joi.string().required(),
     penjab: Joi.string().required(),
+    isAktif: Joi.required(),
   }),
 };
 
