@@ -34,5 +34,6 @@ jobs:
             git checkout dev
             git pull
             npm install
+            npm install -g npx # Install npx secara manual
             npx sequelize db:migrate
             pm2 start 1
