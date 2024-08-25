@@ -39,14 +39,11 @@ module.exports = {
       }
       user.password = null;
       const token = await JWT.sign({ user }, process.env.SECRET_KEY, {
-        expiresIn: "7d",
+        expiresIn: "1m",
       });
       const refreshToken = await JWT.sign(
         { uuid: user.uuid },
-        process.env.SECRET_KEY,
-        {
-          expiresIn: "7d",
-        }
+        process.env.SECRET_KEY
       );
       await RefreshToken.create({
         token: refreshToken,
@@ -98,14 +95,11 @@ module.exports = {
           });
         }
         const token = await JWT.sign({ user }, process.env.SECRET_KEY, {
-          expiresIn: "7d",
+          expiresIn: "1m",
         });
         const refreshToken = await JWT.sign(
           { uuid: user.uuid },
-          process.env.SECRET_KEY,
-          {
-            expiresIn: "7d",
-          }
+          process.env.SECRET_KEY
         );
         await storedToken.update({ expired: true });
         await RefreshToken.create({
