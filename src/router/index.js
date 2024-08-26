@@ -11,6 +11,7 @@ const ruteRouter = require("./rute");
 const kloterRouter = require("./kloter");
 const ticketRouter = require("./ticket");
 const ketuntasanRouter = require("./ketuntasan");
+const pembayaranRouter = require("./pembayaran");
 
 const auth = require("../../middleware/authentication");
 
@@ -28,5 +29,6 @@ router.use("/rute", auth, ruteRouter);
 router.use("/kloter", auth, kloterRouter);
 router.use("/ticket", auth, ticketRouter);
 router.use("/ketuntasan", auth, ketuntasanRouter);
+router.use("/pembayaran", auth, pembayaranRouter);
 
 module.exports = router;
