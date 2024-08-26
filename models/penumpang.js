@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Penumpang.hasMany(models.Tujuan, { as: "tujuan" });
       Penumpang.belongsTo(models.Santri, { as: "santri" });
+      Penumpang.belongsTo(models.Dropspot, { as: "dropspot" });
     }
   }
   Penumpang.init(
@@ -51,6 +52,15 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM,
         values: ["belum-lunas", "kurang", "lunas", "lebih"],
         defaultValue: "belum-lunas",
+      },
+      dropspotId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: null,
+        references: {
+          model: "dropspots",
+          key: "id",
+        },
       },
       createdAt: {
         allowNull: false,

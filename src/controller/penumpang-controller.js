@@ -20,8 +20,10 @@ module.exports = {
       const offset = 0 + (page - 1) * limit;
       // get data from database
       const data = await Penumpang.findAndCountAll({
+        attributes: { exclude: ["statusKepulangan", "tagihan", "totalBayar"] },
         where: {
           statusRombongan: "Y",
+          dropspotId: { [Op.not]: null },
         },
         include: [
           {
@@ -35,14 +37,16 @@ module.exports = {
             },
           },
           {
-            model: Tujuan,
-            as: "tujuan",
+            model: Dropspot,
+            as: "dropspot",
+            attributes: {
+              exclude: ["cakupan", "grup", "harga", "jadwalKeberangkatan"],
+            },
             include: {
-              model: Dropspot,
-              as: "dropspot",
-              include: {
-                model: Area,
-                as: "area",
+              model: Area,
+              as: "area",
+              attributes: {
+                exclude: ["picInt", "hpPicInt", "picExt", "hpPicExt"],
               },
             },
           },
@@ -71,40 +75,6 @@ module.exports = {
       });
     }
   },
-  // //   get data by id
-  // getById: async (req, res) => {
-  //   try {
-  //     // get data from database
-  //     const data = await Area.findOne({
-  //       where: {
-  //         id: req.params.id,
-  //       },
-  //       include: {
-  //         model: Dropspot,
-  //         as: "dropspot",
-  //       },
-  //     });
-  //     if (!data) {
-  //       return res.status(404).json({
-  //         status: 404,
-  //         message: "NOT FOUND",
-  //         error: `area tidak ditemukan`,
-  //       });
-  //     }
-  //     return res.status(200).json({
-  //       status: 200,
-  //       message: "OK",
-  //       data: data,
-  //     });
-  //   } catch (err) {
-  //     return res.status(500).json({
-  //       status: 500,
-  //       message: "INTERNAL SERVER ERROR",
-  //       error: err.message,
-  //     });
-  //   }
-  // },
-  //   update status kepulangan
   statusKepulangan: async (req, res) => {
     try {
       // get data from database
@@ -128,6 +98,13 @@ module.exports = {
           status: 400,
           message: "BAD REQUEST",
           error: error.message,
+        });
+      }
+      if (data.statusRombongan == "Y") {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: "santri masih berstatus rombongan",
         });
       }
       const result = await data.update(value);
@@ -161,6 +138,13 @@ module.exports = {
           error: `santri tidak ditemukan`,
         });
       }
+      if (data.dropspotId) {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: `santri masih memiliki dropspot aktif`,
+        });
+      }
       const { error, value } = penumpangSchema.statusRombongan.validate(
         req.body
       );
@@ -169,6 +153,13 @@ module.exports = {
           status: 400,
           message: "BAD REQUEST",
           error: error.message,
+        });
+      }
+      if (data.statusKepulangan != "Y") {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: "santri belum berstatus pulang",
         });
       }
       const result = await data.update(value);
@@ -188,6 +179,7 @@ module.exports = {
   },
   //   add dropspot
   addDropspot: async (req, res) => {
+    const transaction = await sequelize.transaction();
     try {
       // get data from database
       const data = await Penumpang.findOne({
@@ -202,6 +194,20 @@ module.exports = {
           error: `penumpang tidak ditemukan`,
         });
       }
+      if (data.statusRombongan != "Y") {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: `santri belum berstatus rombongan`,
+        });
+      }
+      if (data.dropspotId) {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: `santri masih memiliki dropspot aktif`,
+        });
+      }
       const { error, value } = penumpangSchema.addDrop.validate(req.body);
       if (error) {
         return res.status(400).json({
@@ -210,17 +216,28 @@ module.exports = {
           error: error.message,
         });
       }
-      const result = await Tujuan.create({
-        penumpangId: data.id,
-        dropspotId: value.dropspotId,
-      });
+      await data.update(
+        {
+          dropspotId: value.dropspotId,
+        },
+        { transaction }
+      );
+      const result = await Tujuan.create(
+        {
+          penumpangId: data.id,
+          dropspotId: value.dropspotId,
+        },
+        { transaction }
+      );
 
+      await transaction.commit();
       return res.status(201).json({
         status: 201,
         message: "CREATED",
         data: result,
       });
     } catch (err) {
+      await transaction.rollback();
       return res.status(500).json({
         status: 500,
         message: "INTERNAL SERVER ERROR",
@@ -245,11 +262,11 @@ module.exports = {
           error: `penumpang tidak ditemukan`,
         });
       }
-      if (data.statusRombongan == "Y") {
+      if (data.dropspotId) {
         return res.status(400).json({
           status: 400,
           message: "BAD REQUEST",
-          error: "santri sudah terdaftar sebagai rombongan",
+          error: "santri sudah memiliki dropspot",
         });
       }
       const { error, value } = penumpangSchema.addDrop.validate(req.body);
@@ -264,6 +281,7 @@ module.exports = {
         {
           statusKepulangan: "Y",
           statusRombongan: "Y",
+          dropspotId: value.dropspotId,
         },
         { transaction }
       );
@@ -289,32 +307,203 @@ module.exports = {
       });
     }
   },
-  // //   remove data
-  // remove: async (req, res) => {
-  //   try {
-  //     // get data from database
-  //     const data = await Area.findOne({
-  //       where: {
-  //         id: req.params.id,
-  //       },
-  //     });
-  //     if (!data) {
-  //       return res.status(404).json({
-  //         status: 404,
-  //         message: "NOT FOUND",
-  //         error: `area tidak ditemukan`,
-  //       });
-  //     }
-
-  //     await data.destroy();
-
-  //     return res.status(204).json();
-  //   } catch (err) {
-  //     return res.status(500).json({
-  //       status: 500,
-  //       message: "INTERNAL SERVER ERROR",
-  //       error: err.message,
-  //     });
-  //   }
-  // },
+  daftarPenumpang: async (req, res) => {
+    const transaction = await sequelize.transaction();
+    try {
+      // get data from database
+      const data = await Penumpang.findOne({
+        where: {
+          santriUuid: req.params.uuid,
+        },
+      });
+      if (!data) {
+        return res.status(404).json({
+          status: 404,
+          message: "NOT FOUND",
+          error: `penumpang tidak ditemukan`,
+        });
+      }
+      if (data.dropspotId) {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: "santri sudah memiliki dropspot",
+        });
+      }
+      const { error, value } = penumpangSchema.addDrop.validate(req.body);
+      if (error) {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: error.message,
+        });
+      }
+      await data.update(
+        {
+          statusKepulangan: "Y",
+          statusRombongan: "Y",
+          dropspotId: value.dropspotId,
+        },
+        { transaction }
+      );
+      const result = await Tujuan.create(
+        {
+          penumpangId: data.id,
+          dropspotId: value.dropspotId,
+        },
+        { transaction }
+      );
+      await transaction.commit();
+      return res.status(201).json({
+        status: 201,
+        message: "CREATED",
+        data: result,
+      });
+    } catch (err) {
+      await transaction.rollback();
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
+  nonaktifDropspot: async (req, res) => {
+    const transaction = await sequelize.transaction();
+    try {
+      // get data from database
+      const data = await Tujuan.findOne({
+        where: {
+          id: req.params.id,
+        },
+      });
+      if (!data) {
+        return res.status(404).json({
+          status: 404,
+          message: "NOT FOUND",
+          error: `tujuan tidak ditemukan`,
+        });
+      }
+      if (data.isAktif == "T") {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: "tujuan sudah nonaktif",
+        });
+      }
+      const penumpang = await Penumpang.findOne({
+        where: {
+          id: data.penumpangId,
+        },
+      });
+      if (!penumpang) {
+        return res.status(404).json({
+          status: 404,
+          message: "NOT FOUND",
+          error: `penumpang tidak ditemukan`,
+        });
+      }
+      await penumpang.update(
+        {
+          dropspotId: null,
+        },
+        { transaction }
+      );
+      const result = await data.update(
+        {
+          isAktif: "T",
+        },
+        { transaction }
+      );
+      await transaction.commit();
+      return res.status(200).json({
+        status: 200,
+        message: "OK",
+        data: result,
+      });
+    } catch (err) {
+      await transaction.rollback();
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
+  aktifDropspot: async (req, res) => {
+    const transaction = await sequelize.transaction();
+    try {
+      // get data from database
+      const data = await Tujuan.findOne({
+        where: {
+          id: req.params.id,
+        },
+      });
+      if (!data) {
+        return res.status(404).json({
+          status: 404,
+          message: "NOT FOUND",
+          error: `tujuan tidak ditemukan`,
+        });
+      }
+      if (data.isAktif == "Y") {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: "tujuan sudah aktif",
+        });
+      }
+      const penumpang = await Penumpang.findOne({
+        where: {
+          id: data.penumpangId,
+        },
+      });
+      if (!penumpang) {
+        return res.status(404).json({
+          status: 404,
+          message: "NOT FOUND",
+          error: `penumpang tidak ditemukan`,
+        });
+      }
+      if (penumpang.statusRombongan != "Y") {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: `santri belum berstatus rombongan`,
+        });
+      }
+      if (penumpang.dropspotId) {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: "santri sudah memiliki dropspot",
+        });
+      }
+      await penumpang.update(
+        {
+          dropspotId: data.dropspotId,
+        },
+        { transaction }
+      );
+      const result = await data.update(
+        {
+          isAktif: "Y",
+        },
+        { transaction }
+      );
+      await transaction.commit();
+      return res.status(200).json({
+        status: 200,
+        message: "OK",
+        data: result,
+      });
+    } catch (err) {
+      await transaction.rollback();
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
 };
