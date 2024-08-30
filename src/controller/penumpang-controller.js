@@ -179,7 +179,7 @@ module.exports = {
   },
   //   add dropspot
   addDropspot: async (req, res) => {
-    const transaction = await sequelize.transaction();
+    // const transaction = await sequelize.transaction();
     try {
       // get data from database
       const data = await Penumpang.findOne({
@@ -220,24 +220,26 @@ module.exports = {
         {
           penumpangId: data.id,
           dropspotId: value.dropspotId,
-        },
-        { transaction }
+        }
+        // { transaction }
       );
-      await data.update(
-        {
-          dropspotId: value.dropspotId,
-        },
-        { transaction }
-      );
+      if (result) {
+        await data.update(
+          {
+            dropspotId: value.dropspotId,
+          }
+          // { transaction }
+        );
+      }
 
-      await transaction.commit();
+      // await transaction.commit();
       return res.status(201).json({
         status: 201,
         message: "CREATED",
         data: result,
       });
     } catch (err) {
-      await transaction.rollback();
+      // await transaction.rollback();
       return res.status(500).json({
         status: 500,
         message: "INTERNAL SERVER ERROR",

@@ -7,6 +7,7 @@ const {
   sequelize,
 } = require("../../models");
 const axios = require("axios");
+const persyaratanSchema = require("../validation/persyaratan-schema");
 
 async function processData(uuid, itm) {
   // const transaction = await sequelize.transaction();
@@ -168,6 +169,42 @@ module.exports = {
           message: "OK",
           data: data.rows,
         });
+    } catch (err) {
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
+  tuntas: async (req, res) => {
+    try {
+      const { error, value } = persyaratanSchema.tuntas.validate(req.body);
+      if (error) {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: error.message,
+        });
+      }
+      const promises = value.data.map(async (item) => {
+        await SantriPersyaratan.update(
+          { status: item.status },
+          {
+            where: {
+              santriUuid: req.params.uuid,
+              ketuntasanId: item.ketuntasanId,
+            },
+          }
+        );
+      });
+
+      await Promise.all(promises);
+
+      return res.status(200).json({
+        status: 200,
+        message: "OK",
+      });
     } catch (err) {
       return res.status(500).json({
         status: 500,
