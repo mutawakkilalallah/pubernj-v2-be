@@ -216,15 +216,15 @@ module.exports = {
           error: error.message,
         });
       }
-      await data.update(
+      const result = await Tujuan.create(
         {
+          penumpangId: data.id,
           dropspotId: value.dropspotId,
         },
         { transaction }
       );
-      const result = await Tujuan.create(
+      await data.update(
         {
-          penumpangId: data.id,
           dropspotId: value.dropspotId,
         },
         { transaction }
