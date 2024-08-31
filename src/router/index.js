@@ -13,6 +13,7 @@ const ticketRouter = require("./ticket");
 const ketuntasanRouter = require("./ketuntasan");
 const pembayaranRouter = require("./pembayaran");
 const persyaratanRouter = require("./persyaratan");
+const userRouter = require("./user");
 
 const auth = require("../../middleware/authentication");
 
@@ -32,5 +33,6 @@ router.use("/ticket", auth, ticketRouter);
 router.use("/ketuntasan", auth, ketuntasanRouter);
 router.use("/pembayaran", auth, pembayaranRouter);
 router.use("/persyaratan", auth, persyaratanRouter);
+router.use("/user", auth, userRouter);
 
 module.exports = router;
