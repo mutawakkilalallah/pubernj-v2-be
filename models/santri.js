@@ -33,6 +33,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      jenis_kelamin: {
+        type: DataTypes.ENUM,
+        allowNull: false,
+        values: ["L", "P"],
+      },
       negara: {
         type: DataTypes.STRING,
         allowNull: true,

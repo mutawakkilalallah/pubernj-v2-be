@@ -1,6 +1,7 @@
 const { Op } = require("sequelize");
 const {
   Santri,
+  SantriPersyaratan,
   Penumpang,
   Tujuan,
   Dropspot,
@@ -75,47 +76,113 @@ async function processDataSantri(uuid) {
     return false;
   }
 }
+async function processDeleteSantri(uuid) {
+  const transaction = await sequelize.transaction();
+  try {
+    const penumpang = await Penumpang.findOne({
+      where: {
+        santriUuid: uuid,
+      },
+    });
+
+    await Tujuan.destroy(
+      { where: { penumpangId: penumpang.id } },
+      { transaction }
+    );
+
+    await penumpang.destroy({ transaction: transaction });
+
+    await SantriPersyaratan.destroy(
+      { where: { santriUuid: uuid } },
+      { transaction }
+    );
+    await Santri.destroy({ where: { uuid: uuid } }, { transaction });
+
+    await transaction.commit();
+    return true;
+  } catch (err) {
+    await transaction.rollback();
+    console.log(uuid + " : " + err.message);
+    return false;
+  }
+}
+
+function getDataBaru(dataApi, dataDb) {
+  return dataApi
+    .filter((itemApi) => !dataDb.some((itemDb) => itemDb.uuid === itemApi.uuid))
+    .map((item) => item.uuid);
+}
+
+function getDataExpired(dataApi, dataDb) {
+  return dataDb
+    .filter(
+      (itemDb) => !dataApi.some((itemApi) => itemApi.uuid === itemDb.uuid)
+    )
+    .map((item) => item.uuid);
+}
 
 module.exports = {
   generateSantri: async (req, res) => {
     try {
-      let totalBerhasil = 0;
-      let totalGagal = 0;
+      let totalBerhasilTambah = 0;
+      let totalGagalTambah = 0;
+      let totalBerhasilDestroy = 0;
+      let totalGagalDestroy = 0;
 
-      const data = await axios.get(`${process.env.PEDATREN_URL}/santri`, {
-        headers: {
-          "x-api-key": process.env.PEDATREN_TOKEN,
-        },
-        params: {
-          wilayah: "dalbar",
-          // blok: 52,
-          // limit: 5,
-          disable_pagination: true,
-        },
+      const dataPedateren = await axios.get(
+        `${process.env.PEDATREN_URL}/santri`,
+        {
+          headers: {
+            "x-api-key": process.env.PEDATREN_TOKEN,
+          },
+          params: {
+            disable_pagination: true,
+          },
+        }
+      );
+
+      const dataDb = await Santri.findAll({
+        attributes: ["uuid"],
       });
 
-      const results = await Promise.all(
-        data.data.map((d) => processDataSantri(d.uuid))
+      const dataBaru = getDataBaru(dataPedateren.data, dataDb);
+      const dataExpired = getDataExpired(dataPedateren.data, dataDb);
+      const resultTambah = await Promise.all(
+        dataBaru.map((d) => processDataSantri(d))
+      );
+      const resultDestroy = await Promise.all(
+        dataExpired.map((d) => processDeleteSantri(d))
       );
 
-      const berhasil = results.filter((result) => result).length;
-      const gagal = results.filter((result) => !result).length;
+      const berhasilTambah = resultTambah.filter((resultT) => resultT).length;
+      const gagalTambah = resultTambah.filter((resultT) => !resultT).length;
+      const berhasilDestroy = resultDestroy.filter((resultD) => resultD).length;
+      const gagalDestory = resultDestroy.filter((resultD) => !resultD).length;
 
-      totalBerhasil += berhasil;
-      totalGagal += gagal;
+      totalBerhasilTambah += berhasilTambah;
+      totalGagalTambah += gagalTambah;
+      totalBerhasilDestroy += berhasilDestroy;
+      totalGagalDestroy += gagalDestory;
 
       console.log(
-        `didapat : ${data.data.length} - diproses : ${results.length} | berhasil(${berhasil})/gagal(${gagal})`
+        `didapat data baru : ${dataBaru.length} - diproses data baru  : ${resultTambah.length} | berhasil(${berhasilTambah})/gagal(${gagalTambah})`
       );
 
       console.log(
-        `Total berhasil: ${totalBerhasil}, Total gagal: ${totalGagal}`
+        `Total berhasil data baru : ${totalBerhasilTambah}, Total gagal data baru : ${totalGagalTambah}`
+      );
+
+      console.log(
+        `didapat data expired : ${dataExpired.length} - diproses data expired : ${resultDestroy.length} | berhasil(${berhasilDestroy})/gagal(${gagalDestory})`
+      );
+
+      console.log(
+        `Total berhasil data expired: ${totalBerhasilDestroy}, Total gagal: ${totalGagalDestroy}`
       );
 
       return res.status(200).json({
         status: 20,
         message: "OK",
-        // data: "Berhasil memproses data santri",
       });
     } catch (err) {
       return res.status(500).json({
@@ -136,10 +203,19 @@ module.exports = {
       const data = await Santri.findAndCountAll({
         attributes: { exclude: ["raw"] },
         where: {
-          nama_lengkap: {
-            [Op.like]: `%${search}%`,
+          [Op.or]: {
+            nama_lengkap: {
+              [Op.like]: `%${search}%`,
+            },
+            niup: {
+              [Op.like]: `%${search}%`,
+            },
           },
-          // ...(req.query.area && { areaId: req.query.area }),
+          ...(req.query.wilayah && { alias_wilayah: req.query.wilayah }),
+          ...(req.query.blok && { id_blok: req.query.blok }),
+          ...(req.query.jenis_kelamin && {
+            jenis_kelamin: req.query.jenis_kelamin,
+          }),
         },
         include: [
           {
@@ -151,6 +227,14 @@ module.exports = {
               "statusRombongan",
             ],
             as: "penumpang",
+            where: {
+              ...(req.query.status_pulang && {
+                statusKepulangan: req.query.status_pulang,
+              }),
+              ...(req.query.status_rombongan && {
+                statusRombongan: req.query.status_rombongan,
+              }),
+            },
           },
         ],
         limit,
@@ -221,6 +305,25 @@ module.exports = {
         });
       }
       data.raw = JSON.parse(data.raw);
+      return res.status(200).json({
+        status: 200,
+        message: "OK",
+        data: data,
+      });
+    } catch (err) {
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
+  getDomisili: async (req, res) => {
+    try {
+      // get data from database
+      const data = await sequelize.query(
+        `SELECT wilayah, alias_wilayah, JSON_ARRAYAGG( JSON_OBJECT('id_blok', id_blok, 'blok', blok) ) AS data_blok FROM santris WHERE alias_wilayah IS NOT NULL GROUP BY wilayah, alias_wilayah ORDER BY CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(wilayah, '(', -1), ')', 1) AS UNSIGNED);`
+      );
       return res.status(200).json({
         status: 200,
         message: "OK",
