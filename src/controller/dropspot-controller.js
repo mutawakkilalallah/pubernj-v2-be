@@ -19,6 +19,10 @@ module.exports = {
           },
           ...(req.query.area && { areaId: req.query.area }),
         },
+        include: {
+          model: Area,
+          as: "area",
+        },
         limit,
         offset,
       });
