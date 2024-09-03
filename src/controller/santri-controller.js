@@ -211,6 +211,8 @@ module.exports = {
               [Op.like]: `%${search}%`,
             },
           },
+          ...(req.user.role === "daerah" && { id_blok: req.id_blok }),
+          ...(req.user.role === "wilayah" && { alias_wilayah: req.wilayah }),
           ...(req.query.wilayah && { alias_wilayah: req.query.wilayah }),
           ...(req.query.blok && { id_blok: req.query.blok }),
           ...(req.query.jenis_kelamin && {
@@ -320,14 +322,25 @@ module.exports = {
   },
   getDomisili: async (req, res) => {
     try {
+      let data;
       // get data from database
-      const data = await sequelize.query(
-        `SELECT wilayah, alias_wilayah, JSON_ARRAYAGG( JSON_OBJECT('id_blok', id_blok, 'blok', blok) ) AS data_blok FROM santris WHERE alias_wilayah IS NOT NULL GROUP BY wilayah, alias_wilayah ORDER BY CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(wilayah, '(', -1), ')', 1) AS UNSIGNED);`
-      );
+      if (req.user.role == "wilayah") {
+        data = await sequelize.query(
+          `SELECT wilayah, alias_wilayah, JSON_ARRAYAGG( JSON_OBJECT('id_blok', id_blok, 'blok', blok) ) AS data_blok FROM santris WHERE alias_wilayah IS NOT NULL' GROUP BY wilayah, alias_wilayah ORDER BY CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(wilayah, '(', -1), ')', 1) AS UNSIGNED);`
+        );
+      } else if (req.user.role == "wilayah") {
+        data = await sequelize.query(
+          `SELECT wilayah, alias_wilayah, JSON_ARRAYAGG( JSON_OBJECT('id_blok', id_blok, 'blok', blok) ) AS data_blok FROM santris WHERE alias_wilayah IS NOT NULL' GROUP BY wilayah, alias_wilayah ORDER BY CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(wilayah, '(', -1), ')', 1) AS UNSIGNED);`
+        );
+      } else {
+        data = await sequelize.query(
+          `SELECT wilayah, alias_wilayah, JSON_ARRAYAGG( JSON_OBJECT('id_blok', id_blok, 'blok', blok) ) AS data_blok FROM santris WHERE alias_wilayah IS NOT NULL GROUP BY wilayah, alias_wilayah ORDER BY CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(wilayah, '(', -1), ')', 1) AS UNSIGNED);`
+        );
+      }
       return res.status(200).json({
         status: 200,
         message: "OK",
-        data: data,
+        data: data[0],
       });
     } catch (err) {
       return res.status(500).json({
