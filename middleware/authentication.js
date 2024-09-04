@@ -10,7 +10,7 @@ module.exports = async (req, res, next) => {
         error: "invalid credentials",
       });
     }
-    req.user = decoded;
+    req.user = decoded.user;
     next();
   });
 };

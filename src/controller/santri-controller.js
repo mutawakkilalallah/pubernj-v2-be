@@ -211,9 +211,10 @@ module.exports = {
               [Op.like]: `%${search}%`,
             },
           },
-          ...(req.user.user.role === "daerah" && { id_blok: req.id_blok }),
-          ...(req.user.user.role === "wilayah" && {
-            alias_wilayah: req.wilayah,
+
+          ...(req.user.role === "daerah" && { id_blok: req.user.id_blok }),
+          ...(req.user.role === "wilayah" && {
+            alias_wilayah: req.user.alias_wilayah,
           }),
           ...(req.query.wilayah && { alias_wilayah: req.query.wilayah }),
           ...(req.query.blok && { id_blok: req.query.blok }),
