@@ -57,6 +57,15 @@ module.exports = {
         ],
         limit,
         offset,
+        order: [
+          [
+            sequelize.literal(
+              `CASE WHEN santri.niup = '11420204139' THEN 0 ELSE 1 END`
+            ),
+            "ASC",
+          ],
+          ["updatedAt", "DESC"],
+        ],
       });
       return res
         .status(200)
