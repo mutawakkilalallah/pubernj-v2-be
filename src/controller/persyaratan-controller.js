@@ -125,7 +125,9 @@ module.exports = {
       const offset = 0 + (page - 1) * limit;
       // get data from database
       const data = await Santri.findAndCountAll({
-        attributes: { exclude: ["raw"] },
+        attributes: {
+          exclude: ["raw"],
+        },
         where: {
           nama_lengkap: {
             [Op.like]: `%${search}%`,
@@ -135,23 +137,25 @@ module.exports = {
         include: [
           {
             model: Penumpang,
-            attributes: ["statusKepulangan"],
+            required: true,
+            // attributes: ["statusKepulangan"],
             as: "penumpang",
             where: {
               statusKepulangan: "Y",
             },
           },
-          // {
-          //   model: SantriPersyaratan,
-          //   as: "persyaratan",
-          //   include: {
-          //     model: Ketuntasan,
-          //     as: "ketuntasan",
-          //     where: {
-          //       isAktif: "Y",
-          //     },
-          //   },
-          // },
+          {
+            model: SantriPersyaratan,
+            as: "persyaratan",
+            include: {
+              model: Ketuntasan,
+              required: true,
+              as: "ketuntasan",
+              where: {
+                isAktif: "Y",
+              },
+            },
+          },
         ],
         limit,
         offset,
