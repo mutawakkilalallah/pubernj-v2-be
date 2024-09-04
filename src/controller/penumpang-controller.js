@@ -34,6 +34,10 @@ module.exports = {
               nama_lengkap: {
                 [Op.like]: `%${search}%`,
               },
+              ...(req.user.role === "daerah" && { id_blok: req.id_blok }),
+              ...(req.user.role === "wilayah" && {
+                alias_wilayah: req.wilayah,
+              }),
             },
           },
           {
