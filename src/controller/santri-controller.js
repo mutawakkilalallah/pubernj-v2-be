@@ -229,6 +229,8 @@ module.exports = {
               "santriUuid",
               "statusKepulangan",
               "statusRombongan",
+              "createdAt",
+              "updatedAt",
             ],
             as: "penumpang",
             where: {
@@ -243,6 +245,15 @@ module.exports = {
         ],
         limit,
         offset,
+        order: [
+          [
+            sequelize.literal(
+              `CASE WHEN niup = '11420204139' THEN 0 ELSE 1 END`
+            ),
+            "ASC",
+          ],
+          [{ model: Penumpang, as: "penumpang" }, "updatedAt", "DESC"],
+        ],
       });
       return res
         .status(200)
