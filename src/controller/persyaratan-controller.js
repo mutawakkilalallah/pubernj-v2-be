@@ -141,17 +141,17 @@ module.exports = {
               statusKepulangan: "Y",
             },
           },
-          {
-            model: SantriPersyaratan,
-            as: "persyaratan",
-            include: {
-              model: Ketuntasan,
-              as: "ketuntasan",
-              where: {
-                isAktif: "Y",
-              },
-            },
-          },
+          // {
+          //   model: SantriPersyaratan,
+          //   as: "persyaratan",
+          //   include: {
+          //     model: Ketuntasan,
+          //     as: "ketuntasan",
+          //     where: {
+          //       isAktif: "Y",
+          //     },
+          //   },
+          // },
         ],
         limit,
         offset,
