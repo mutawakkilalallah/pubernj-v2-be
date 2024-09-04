@@ -1,6 +1,6 @@
 const { Op } = require("sequelize");
-const { Area, Dropspot } = require("../../models");
-const dropspotSchema = require("../validation/dropspot-schema");
+const { Rute } = require("../../models");
+const ruteSchema = require("../validation/rute-schema");
 
 module.exports = {
   // list all data
@@ -12,16 +12,11 @@ module.exports = {
       const limit = parseInt(req.query.limit) || 25;
       const offset = 0 + (page - 1) * limit;
       // get data from database
-      const data = await Dropspot.findAndCountAll({
+      const data = await Rute.findAndCountAll({
         where: {
-          namaDropspot: {
+          namaRute: {
             [Op.like]: `%${search}%`,
           },
-          ...(req.query.area && { areaId: req.query.area }),
-        },
-        include: {
-          model: Area,
-          as: "area",
         },
         limit,
         offset,
@@ -47,47 +42,20 @@ module.exports = {
       });
     }
   },
-  // list all data
-  filter: async (req, res) => {
-    try {
-      // get data from database
-      const area = await Area.findAll({
-        attributes: ["id", "namaArea"],
-        where: {
-          // ...(req.query.area && { areaId: req.query.area }),
-        },
-      });
-      return res.status(200).json({
-        status: 200,
-        message: "OK",
-        data: { area },
-      });
-    } catch (err) {
-      return res.status(500).json({
-        status: 500,
-        message: "INTERNAL SERVER ERROR",
-        error: err.message,
-      });
-    }
-  },
   //   get data by id
   getById: async (req, res) => {
     try {
       // get data from database
-      const data = await Dropspot.findOne({
+      const data = await Rute.findOne({
         where: {
           id: req.params.id,
-        },
-        include: {
-          model: Area,
-          as: "area",
         },
       });
       if (!data) {
         return res.status(404).json({
           status: 404,
           message: "NOT FOUND",
-          error: `dropspot tidak ditemukan`,
+          error: `rute tidak ditemukan`,
         });
       }
       return res.status(200).json({
@@ -106,7 +74,7 @@ module.exports = {
   //   create data
   create: async (req, res) => {
     try {
-      var { error, value } = dropspotSchema.addUp.validate(req.body);
+      var { error, value } = ruteSchema.addUp.validate(req.body);
       if (error) {
         return res.status(400).json({
           status: 400,
@@ -114,7 +82,7 @@ module.exports = {
           error: error.message,
         });
       }
-      const result = await Dropspot.create(value);
+      const result = await Rute.create(value);
 
       res.status(201).json({
         status: 201,
@@ -133,7 +101,7 @@ module.exports = {
   update: async (req, res) => {
     try {
       // get data from database
-      const data = await Dropspot.findOne({
+      const data = await Rute.findOne({
         where: {
           id: req.params.id,
         },
@@ -142,10 +110,10 @@ module.exports = {
         return res.status(404).json({
           status: 404,
           message: "NOT FOUND",
-          error: `dropspot tidak ditemukan`,
+          error: `rute tidak ditemukan`,
         });
       }
-      const { error, value } = dropspotSchema.addUp.validate(req.body);
+      const { error, value } = ruteSchema.addUp.validate(req.body);
       if (error) {
         return res.status(400).json({
           status: 400,
@@ -172,7 +140,7 @@ module.exports = {
   remove: async (req, res) => {
     try {
       // get data from database
-      const data = await Dropspot.findOne({
+      const data = await Rute.findOne({
         where: {
           id: req.params.id,
         },
@@ -181,7 +149,7 @@ module.exports = {
         return res.status(404).json({
           status: 404,
           message: "NOT FOUND",
-          error: `dropspot tidak ditemukan`,
+          error: `rute tidak ditemukan`,
         });
       }
 

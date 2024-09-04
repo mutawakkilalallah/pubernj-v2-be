@@ -5,6 +5,9 @@ const authSchema = {
     username: Joi.required(),
     password: Joi.required(),
   }),
+  refreshToken: Joi.object({
+    token: Joi.required(),
+  }),
 };
 
 module.exports = authSchema;

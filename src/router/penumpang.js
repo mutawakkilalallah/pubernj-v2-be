@@ -5,16 +5,18 @@ const {
   addDropspot,
   list,
   daftarPenumpang,
+  nonaktifDropspot,
+  aktifDropspot,
 } = require("../controller/penumpang-controller");
 
 const penumpang = Router();
 
 penumpang.get("/", list);
-// penumpang.get("/:id", getById);
 penumpang.put("/status-kepulangan/:uuid", statusKepulangan);
 penumpang.put("/status-rombongan/:uuid", statusRombongan);
-penumpang.post("/tujuan/:uuid", addDropspot);
 penumpang.post("/daftar/:uuid", daftarPenumpang);
-// penumpang.delete("/:id", remove);
+penumpang.post("/tujuan/:uuid", addDropspot);
+penumpang.put("/tujuan/:id/nonaktif", nonaktifDropspot);
+penumpang.put("/tujuan/:id/aktif", aktifDropspot);
 
 module.exports = penumpang;

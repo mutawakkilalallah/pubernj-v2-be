@@ -1,17 +1,17 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class Armada extends Model {
+  class Ketuntasan extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Armada.belongsTo(models.Dropspot, { as: "dropspot" });
+      // define association here
     }
   }
-  Armada.init(
+  Ketuntasan.init(
     {
       id: {
         allowNull: false,
@@ -19,45 +19,31 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
-      namaArmada: {
+      nama: {
+        allowNull: false,
         type: DataTypes.STRING,
+      },
+      alias: {
         allowNull: false,
+        type: DataTypes.STRING,
       },
-      type: {
-        type: DataTypes.ENUM,
+      statusTrue: {
         allowNull: false,
-        values: ["bus", "minibus", "elf", "hiace", "mpv", "elflong"],
+        type: DataTypes.STRING,
       },
-      jenis: {
-        type: DataTypes.ENUM,
+      statusFalse: {
         allowNull: false,
-        values: ["putra", "putri"],
+        type: DataTypes.STRING,
       },
-      hargaSewa: {
-        type: DataTypes.BIGINT,
-        allowNull: true,
+      penjab: {
+        allowNull: false,
+        type: DataTypes.STRING,
       },
-      isKloter: {
+      isAktif: {
         type: DataTypes.ENUM,
         allowNull: false,
         values: ["Y", "T"],
-        defaultValue: "T",
-      },
-      namaKloter: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      jadwalKeberangkatan: {
-        type: DataTypes.DATE,
-        allowNull: true,
-      },
-      dropspotId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-          model: "dropspots",
-          key: "id",
-        },
+        defaultValue: "Y",
       },
       createdAt: {
         allowNull: false,
@@ -70,9 +56,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "Armada",
-      tableName: "armadas",
+      modelName: "Ketuntasan",
+      tableName: "ketuntasans",
     }
   );
-  return Armada;
+  return Ketuntasan;
 };

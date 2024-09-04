@@ -1,6 +1,6 @@
 const { Op } = require("sequelize");
-const { Area, Dropspot } = require("../../models");
-const dropspotSchema = require("../validation/dropspot-schema");
+const { Area, Dropspot, Armada } = require("../../models");
+const kloterSchema = require("../validation/kloter-schema");
 
 module.exports = {
   // list all data
@@ -12,16 +12,18 @@ module.exports = {
       const limit = parseInt(req.query.limit) || 25;
       const offset = 0 + (page - 1) * limit;
       // get data from database
-      const data = await Dropspot.findAndCountAll({
+      const data = await Armada.findAndCountAll({
         where: {
-          namaDropspot: {
-            [Op.like]: `%${search}%`,
+          [Op.or]: {
+            namaKloter: {
+              [Op.like]: `%${search}%`,
+            },
+            namaArmada: {
+              [Op.like]: `%${search}%`,
+            },
           },
-          ...(req.query.area && { areaId: req.query.area }),
-        },
-        include: {
-          model: Area,
-          as: "area",
+          isKloter: "Y",
+          // ...(req.query.area && { areaId: req.query.area }),
         },
         limit,
         offset,
@@ -47,47 +49,29 @@ module.exports = {
       });
     }
   },
-  // list all data
-  filter: async (req, res) => {
-    try {
-      // get data from database
-      const area = await Area.findAll({
-        attributes: ["id", "namaArea"],
-        where: {
-          // ...(req.query.area && { areaId: req.query.area }),
-        },
-      });
-      return res.status(200).json({
-        status: 200,
-        message: "OK",
-        data: { area },
-      });
-    } catch (err) {
-      return res.status(500).json({
-        status: 500,
-        message: "INTERNAL SERVER ERROR",
-        error: err.message,
-      });
-    }
-  },
   //   get data by id
   getById: async (req, res) => {
     try {
       // get data from database
-      const data = await Dropspot.findOne({
+      const data = await Armada.findOne({
         where: {
           id: req.params.id,
         },
         include: {
-          model: Area,
-          as: "area",
+          model: Dropspot,
+          as: "dropspot",
+          include: {
+            model: Area,
+            as: "area",
+          },
         },
+        isKloter: "Y",
       });
       if (!data) {
         return res.status(404).json({
           status: 404,
           message: "NOT FOUND",
-          error: `dropspot tidak ditemukan`,
+          error: `kloter tidak ditemukan`,
         });
       }
       return res.status(200).json({
@@ -106,7 +90,7 @@ module.exports = {
   //   create data
   create: async (req, res) => {
     try {
-      var { error, value } = dropspotSchema.addUp.validate(req.body);
+      var { error, value } = kloterSchema.AddUp.validate(req.body);
       if (error) {
         return res.status(400).json({
           status: 400,
@@ -114,7 +98,10 @@ module.exports = {
           error: error.message,
         });
       }
-      const result = await Dropspot.create(value);
+      const result = await Armada.create({
+        ...value,
+        isKloter: "Y",
+      });
 
       res.status(201).json({
         status: 201,
@@ -133,19 +120,20 @@ module.exports = {
   update: async (req, res) => {
     try {
       // get data from database
-      const data = await Dropspot.findOne({
+      const data = await Armada.findOne({
         where: {
           id: req.params.id,
+          isKloter: "Y",
         },
       });
       if (!data) {
         return res.status(404).json({
           status: 404,
           message: "NOT FOUND",
-          error: `dropspot tidak ditemukan`,
+          error: `kloter tidak ditemukan`,
         });
       }
-      const { error, value } = dropspotSchema.addUp.validate(req.body);
+      const { error, value } = kloterSchema.AddUp.validate(req.body);
       if (error) {
         return res.status(400).json({
           status: 400,
@@ -172,16 +160,17 @@ module.exports = {
   remove: async (req, res) => {
     try {
       // get data from database
-      const data = await Dropspot.findOne({
+      const data = await Armada.findOne({
         where: {
           id: req.params.id,
+          isKloter: "Y",
         },
       });
       if (!data) {
         return res.status(404).json({
           status: 404,
           message: "NOT FOUND",
-          error: `dropspot tidak ditemukan`,
+          error: `kloter tidak ditemukan`,
         });
       }
 

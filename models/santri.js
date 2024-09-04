@@ -12,6 +12,10 @@ module.exports = (sequelize, DataTypes) => {
         as: "penumpang",
         foreignKey: "santriUuid",
       });
+      Santri.hasMany(models.SantriPersyaratan, {
+        as: "persyaratan",
+        foreignKey: "santriUuid",
+      });
     }
   }
   Santri.init(
@@ -28,6 +32,11 @@ module.exports = (sequelize, DataTypes) => {
       nama_lengkap: {
         type: DataTypes.STRING,
         allowNull: false,
+      },
+      jenis_kelamin: {
+        type: DataTypes.ENUM,
+        allowNull: false,
+        values: ["L", "P"],
       },
       negara: {
         type: DataTypes.STRING,

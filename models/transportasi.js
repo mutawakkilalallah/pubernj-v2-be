@@ -1,17 +1,17 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class Dropspot extends Model {
+  class Transportasi extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Dropspot.belongsTo(models.Area, { as: "area" });
+      // define association here
     }
   }
-  Dropspot.init(
+  Transportasi.init(
     {
       id: {
         allowNull: false,
@@ -19,42 +19,29 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
-      namaDropspot: {
+      namaTransportasi: {
         allowNull: false,
         type: DataTypes.STRING,
       },
-      cakupan: {
-        allowNull: true,
-        type: DataTypes.TEXT,
-      },
-      harga: {
-        allowNull: true,
-        type: DataTypes.BIGINT,
-      },
-      grup: {
+      kategori: {
         allowNull: false,
         type: DataTypes.ENUM,
-        values: ["jatim", "jawa-non-jatim", "luar-jawa", "luar-pulau"],
+        values: ["pesawat", "kereta", "kapal"],
       },
-      jadwalKeberangkatan: {
+      createdAt: {
+        allowNull: false,
         type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: "2024-09-12 06:00:00",
       },
-      areaId: {
+      updatedAt: {
         allowNull: false,
-        type: DataTypes.INTEGER,
-        references: {
-          model: "Areas",
-          key: "id",
-        },
+        type: DataTypes.DATE,
       },
     },
     {
       sequelize,
-      modelName: "Dropspot",
-      tableName: "dropspots",
+      modelName: "Transportasi",
+      tableName: "transportasis",
     }
   );
-  return Dropspot;
+  return Transportasi;
 };
