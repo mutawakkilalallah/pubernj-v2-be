@@ -1,4 +1,4 @@
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 const {
   Penumpang,
   Santri,
@@ -45,6 +45,10 @@ module.exports = {
             as: "dropspot",
             attributes: {
               exclude: ["cakupan", "grup", "harga", "jadwalKeberangkatan"],
+            },
+            where: {
+              ...(req.query.dropspot && { id: req.query.dropspot }),
+              ...(req.query.area && { areaId: req.query.area }),
             },
             include: {
               model: Area,

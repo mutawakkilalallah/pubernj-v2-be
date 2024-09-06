@@ -39,7 +39,7 @@ module.exports = {
       }
       user.password = null;
       const token = await JWT.sign({ user }, process.env.SECRET_KEY, {
-        expiresIn: "30m",
+        expiresIn: "12h",
       });
       const refreshToken = await JWT.sign(
         { uuid: user.uuid },
@@ -95,7 +95,7 @@ module.exports = {
           });
         }
         const token = await JWT.sign({ user }, process.env.SECRET_KEY, {
-          expiresIn: "30m",
+          expiresIn: "12h",
         });
         const refreshToken = await JWT.sign(
           { uuid: user.uuid },
