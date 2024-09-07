@@ -6,6 +6,7 @@ const {
   Tujuan,
   Dropspot,
   Area,
+  Ketuntasan,
   sequelize,
 } = require("../../models");
 const axios = require("axios");
@@ -310,6 +311,17 @@ module.exports = {
                 },
               },
             ],
+          },
+          {
+            model: SantriPersyaratan,
+            as: "persyaratan",
+            include: {
+              model: Ketuntasan,
+              as: "ketuntasan",
+              where: {
+                isAktif: "Y",
+              },
+            },
           },
         ],
       });
