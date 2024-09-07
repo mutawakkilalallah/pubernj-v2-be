@@ -8,16 +8,6 @@ const {
 } = require("../../models");
 const axios = require("axios");
 const persyaratanSchema = require("../validation/persyaratan-schema");
-const knex = require("knex")({
-  client: "mysql2",
-  connection: {
-    host: "127.0.0.1",
-    port: 3306,
-    user: "root",
-    password: "",
-    database: "pulang_bersama_db",
-  },
-});
 
 async function processData(uuid, itm) {
   // const transaction = await sequelize.transaction();

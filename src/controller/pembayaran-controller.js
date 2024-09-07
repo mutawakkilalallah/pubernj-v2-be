@@ -105,70 +105,91 @@ module.exports = {
           {
             model: Santri,
             as: "santri",
-            attributes: ["uuid", "niup", "nama_lengkap"],
+            attributes: ["uuid", "niup", "nama_lengkap", "jenis_kelamin"],
           },
           {
             model: Dropspot,
             as: "dropspot",
             attributes: ["id", "harga"],
+            where: {
+              harga: { [Op.not]: 0 },
+            },
           },
         ],
       });
       // Membuat workbook dan worksheet
       const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet("Sheet 1");
+      const worksheet = workbook.addWorksheet("tagihan");
 
-      // 1. Merge baris pertama dan isi data
-      worksheet.mergeCells("A1:B1");
-      worksheet.getCell("A1").value = "NAMA INSITUSI";
-      worksheet.getCell("C1").value =
-        "NURUL JADID PAITON PROBOLINGGO, PONDOK PESANTREN";
+      // Mengatur header sederhana
+      worksheet.getCell("A1").value = "No";
+      worksheet.getCell("B1").value = "NIUP";
+      worksheet.getCell("C1").value = "Nama";
+      worksheet.getCell("D1").value = "Jenis Kelamin";
+      worksheet.getCell("E1").value = "Tarif";
 
-      // 2. Merge baris kedua dan isi data
-      worksheet.mergeCells("A2:B2");
-      worksheet.getCell("A2").value = "NAMA TAGIHAN";
-      worksheet.getCell("C2").value = "PUBER RAMADHAN 2024";
-
-      // 3. Kosongkan baris ketiga
-      worksheet.getRow(3).values = [];
-
-      // 4. Merge dan isi baris ke-4 dan ke-5 (header)
-      worksheet.mergeCells("A4:A5");
-      worksheet.mergeCells("B4:B5");
-      worksheet.mergeCells("C4:C5");
-      worksheet.mergeCells("D4:D5");
-      worksheet.mergeCells("E4:G4");
-      worksheet.mergeCells("H4:J4");
-
-      worksheet.getCell("A4").value = "NO";
-      worksheet.getCell("B4").value = "NIUP";
-      worksheet.getCell("C4").value = "NAMA";
-      worksheet.getCell("D4").value = "GRAND TOTAL";
-      worksheet.getCell("E4").value = "PUBER RAMADHAN 2024";
-      worksheet.getCell("H4").value = "ADMIN PUBER RAMADHAN 2024";
-
-      worksheet.getCell("E5").value = "NOMINAL";
-      worksheet.getCell("F5").value = "DISKON";
-      worksheet.getCell("G5").value = "TOTAL";
-      worksheet.getCell("H5").value = "NOMINAL";
-      worksheet.getCell("I5").value = "DISKON";
-      worksheet.getCell("J5").value = "TOTAL";
-
-      // 5. Mulai menambahkan data dari baris ke-6
+      // Menambahkan data mulai dari baris kedua
       penumpang.forEach((p, i) => {
         worksheet.addRow([
-          i + 1, // NO
+          i + 1, // No
           p.santri.niup, // NIUP
-          p.santri.nama_lengkap, // NAMA
-          p.dropspot.harga + 1000, // GRAND TOTAL
-          400000, // NOMINAL PUBER RAMADHAN 2024
-          400000 - p.dropspot.harga, // DISKON PUBER RAMADHAN 2024
-          p.dropspot.harga, // TOTAL PUBER RAMADHAN 2024
-          1000, // NOMINAL ADMIN PUBER
-          0, // DISKON ADMIN PUBER
-          1000, // TOTAL ADMIN PUBER
+          p.santri.nama_lengkap, // Nama
+          p.santri.jenis_kelamin, // Jenis Kelamin
+          p.dropspot.harga, // Tarif
         ]);
       });
+
+      // // 1. Merge baris pertama dan isi data
+      // worksheet.mergeCells("A1:B1");
+      // worksheet.getCell("A1").value = "NAMA INSITUSI";
+      // worksheet.getCell("C1").value =
+      //   "NURUL JADID PAITON PROBOLINGGO, PONDOK PESANTREN";
+
+      // // 2. Merge baris kedua dan isi data
+      // worksheet.mergeCells("A2:B2");
+      // worksheet.getCell("A2").value = "NAMA TAGIHAN";
+      // worksheet.getCell("C2").value = "PUBER RAMADHAN 2024";
+
+      // // 3. Kosongkan baris ketiga
+      // worksheet.getRow(3).values = [];
+
+      // // 4. Merge dan isi baris ke-4 dan ke-5 (header)
+      // worksheet.mergeCells("A4:A5");
+      // worksheet.mergeCells("B4:B5");
+      // worksheet.mergeCells("C4:C5");
+      // worksheet.mergeCells("D4:D5");
+      // worksheet.mergeCells("E4:G4");
+      // worksheet.mergeCells("H4:J4");
+
+      // worksheet.getCell("A4").value = "NO";
+      // worksheet.getCell("B4").value = "NIUP";
+      // worksheet.getCell("C4").value = "NAMA";
+      // worksheet.getCell("D4").value = "GRAND TOTAL";
+      // worksheet.getCell("E4").value = "PUBER RAMADHAN 2024";
+      // worksheet.getCell("H4").value = "ADMIN PUBER RAMADHAN 2024";
+
+      // worksheet.getCell("E5").value = "NOMINAL";
+      // worksheet.getCell("F5").value = "DISKON";
+      // worksheet.getCell("G5").value = "TOTAL";
+      // worksheet.getCell("H5").value = "NOMINAL";
+      // worksheet.getCell("I5").value = "DISKON";
+      // worksheet.getCell("J5").value = "TOTAL";
+
+      // // 5. Mulai menambahkan data dari baris ke-6
+      // penumpang.forEach((p, i) => {
+      //   worksheet.addRow([
+      //     i + 1, // NO
+      //     p.santri.niup, // NIUP
+      //     p.santri.nama_lengkap, // NAMA
+      //     p.dropspot.harga + 1000, // GRAND TOTAL
+      //     400000, // NOMINAL PUBER RAMADHAN 2024
+      //     400000 - p.dropspot.harga, // DISKON PUBER RAMADHAN 2024
+      //     p.dropspot.harga, // TOTAL PUBER RAMADHAN 2024
+      //     1000, // NOMINAL ADMIN PUBER
+      //     0, // DISKON ADMIN PUBER
+      //     1000, // TOTAL ADMIN PUBER
+      //   ]);
+      // });
 
       // Menyiapkan response sebagai file Excel untuk di-download
       res.setHeader(
