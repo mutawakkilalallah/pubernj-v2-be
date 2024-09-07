@@ -8,6 +8,16 @@ const {
 } = require("../../models");
 const axios = require("axios");
 const persyaratanSchema = require("../validation/persyaratan-schema");
+const knex = require("knex")({
+  client: "mysql2",
+  connection: {
+    host: "127.0.0.1",
+    port: 3306,
+    user: "root",
+    password: "",
+    database: "pulang_bersama_db",
+  },
+});
 
 async function processData(uuid, itm) {
   // const transaction = await sequelize.transaction();
@@ -129,17 +139,23 @@ module.exports = {
           exclude: ["raw"],
         },
         where: {
-          nama_lengkap: {
-            [Op.like]: `%${search}%`,
+          [Op.or]: {
+            nama_lengkap: {
+              [Op.like]: `%${search}%`,
+            },
+            niup: {
+              [Op.like]: `%${search}%`,
+            },
           },
-          // ...(req.query.area && { areaId: req.query.area }),
+          ...(req.query.wilayah && { alias_wilayah: req.query.wilayah }),
+          ...(req.query.blok && { id_blok: req.query.blok }),
         },
         include: [
           {
             model: Penumpang,
             required: true,
-            // attributes: ["statusKepulangan"],
             as: "penumpang",
+            attributes: ["id", "statusKepulangan"],
             where: {
               statusKepulangan: "Y",
             },
