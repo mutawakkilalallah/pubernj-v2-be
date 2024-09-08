@@ -137,6 +137,13 @@ module.exports = {
               [Op.like]: `%${search}%`,
             },
           },
+          ...(req.user.role === "daerah" && { id_blok: req.user.id_blok }),
+          ...(req.user.role === "wilayah" && {
+            alias_wilayah: req.user.alias_wilayah,
+          }),
+          ...(req.query.jenis_kelamin && {
+            jenis_kelamin: req.query.jenis_kelamin,
+          }),
           ...(req.query.wilayah && { alias_wilayah: req.query.wilayah }),
           ...(req.query.blok && { id_blok: req.query.blok }),
         },
@@ -150,17 +157,6 @@ module.exports = {
               statusKepulangan: "Y",
             },
           },
-          //{
-          //model: SantriPersyaratan,
-          //as: "persyaratan",
-          //include: {
-          //model: Ketuntasan,
-          //as: "ketuntasan",
-          //where: {
-          //isAktif: "Y",
-          //},
-          //},
-          //},
         ],
         limit,
         offset,
@@ -269,17 +265,51 @@ module.exports = {
   },
   tuntasMobile: async (req, res) => {
     try {
+      console.log(req.user);
+
+      const santri = await Santri.findOne({
+        where: {
+          uuid: req.params.uuid,
+        },
+        attributes: ["uuid", "alias_wilayah", "id_blok"],
+      });
+      if (
+        req.user.role == "wilayah" &&
+        req.user.alias_wilayah != santri.alias_wilayah
+      ) {
+        return res.status(403).json({
+          status: 403,
+          message: "UNAUTHORIZED",
+          error: "Anda tidak memiliki akses",
+        });
+      }
+      if (req.user.role == "daerah" && req.user.id_blok != santri.id_blok) {
+        return res.status(403).json({
+          status: 403,
+          message: "UNAUTHORIZED",
+          error: "Anda tidak memiliki akses",
+        });
+      }
       const { error, value } = persyaratanSchema.tuntasMobile.validate(
         req.body
       );
-      console.log("====================================");
-      console.log(value);
-      console.log("====================================");
       if (error) {
         return res.status(400).json({
           status: 400,
           message: "BAD REQUEST",
           error: error.message,
+        });
+      }
+
+      if (
+        req.user.role != "wilayah" &&
+        value.type == "KAMTIB" &&
+        req.user.jenis_kelamin != "L"
+      ) {
+        return res.status(403).json({
+          status: 403,
+          message: "UNAUTHORIZED",
+          error: "Anda tidak memiliki akses",
         });
       }
 
