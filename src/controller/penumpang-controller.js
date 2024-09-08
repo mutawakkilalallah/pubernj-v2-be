@@ -24,6 +24,9 @@ module.exports = {
         where: {
           statusRombongan: "Y",
           dropspotId: { [Op.not]: null },
+          ...(req.query.pembayaran && {
+            statusPembayaran: req.query.pembayaran,
+          }),
         },
         include: [
           {

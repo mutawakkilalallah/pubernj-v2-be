@@ -42,6 +42,9 @@ module.exports = {
         where: {
           statusRombongan: "Y",
           dropspotId: { [Op.not]: null },
+          ...(req.query.pembayaran && {
+            statusPembayaran: req.query.pembayaran,
+          }),
         },
         include: [
           {
@@ -52,6 +55,13 @@ module.exports = {
               nama_lengkap: {
                 [Op.like]: `%${search}%`,
               },
+              ...(req.query.jenis_kelamin && {
+                jenis_kelamin: req.query.jenis_kelamin,
+              }),
+              ...(req.user.role === "daerah" && { id_blok: req.user.id_blok }),
+              ...(req.user.role === "wilayah" && {
+                alias_wilayah: req.user.alias_wilayah,
+              }),
             },
           },
           {
@@ -59,6 +69,10 @@ module.exports = {
             as: "dropspot",
             attributes: {
               exclude: ["cakupan", "grup", "jadwalKeberangkatan"],
+            },
+            where: {
+              ...(req.query.dropspot && { id: req.query.dropspot }),
+              ...(req.query.area && { areaId: req.query.area }),
             },
             include: {
               model: Area,
@@ -211,5 +225,108 @@ module.exports = {
         error: err.message,
       });
     }
+  },
+  uploadTagihan: async (req, res) => {
+    const excelBuffer = req.file.buffer;
+
+    const workbook = new ExcelJS.Workbook();
+    workbook.xlsx
+      .load(excelBuffer)
+      .then(() => {
+        const worksheet = workbook.getWorksheet("data_invoice"); // Pastikan sesuai dengan nama worksheet yang Anda gunakan
+        const data = [];
+
+        // Loop melalui baris 6 ke atas dan ambil kolom B dan D
+        worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+          if (rowNumber >= 2) {
+            const B = row.getCell("B").value;
+            const H = row.getCell("H").value;
+            const I = row.getCell("I").value;
+            const K = row.getCell("K").value;
+            // Pastikan nilai tidak kosong sebelum menambahkannya ke array
+            if (I === "Lunas") {
+              data.push({
+                niup: B,
+                tagihan: H - 1000,
+                total_bayar: K - 1000,
+              });
+            }
+          }
+        });
+        const promises = data.map(async (d) => {
+          try {
+            const penumpang = await Penumpang.findOne({
+              attributes: [
+                "id",
+                "santriUuid",
+                "tagihan",
+                "totalBayar",
+                "statusPembayaran",
+                "dropspotId",
+              ],
+              include: [
+                {
+                  model: Santri,
+                  as: "santri",
+                  attributes: ["uuid", "niup"],
+                  where: {
+                    niup: d.niup,
+                  },
+                },
+                {
+                  model: Dropspot,
+                  attributes: ["id", "harga"],
+                  as: "dropspot",
+                },
+              ],
+            });
+
+            if (penumpang) {
+              // Lakukan update pada data yang diperoleh dari Excel
+              penumpang.totalBayar = d.total_bayar;
+              penumpang.tagihan = d.tagihan;
+              if (penumpang.dropspot.harga === d.total_bayar) {
+                penumpang.statusPembayaran = "lunas";
+              } else if (penumpang.dropspot.harga < d.total_bayar) {
+                penumpang.statusPembayaran = "lebih";
+              } else if (penumpang.dropspot.harga != 0 && d.total_bayar === 0) {
+                penumpang.statusPembayaran = "belum-lunas";
+              } else if (
+                penumpang.dropspot.harga != 0 &&
+                penumpang.dropspot.harga > d.total_bayar
+              ) {
+                penumpang.statusPembayaran = "kurang";
+              }
+              await penumpang.save();
+            } else {
+              return `Data dengan niup ${d.niup} tidak ditemukan.`;
+            }
+          } catch (error) {
+            return `Terjadi kesalahan: ${error.message}`;
+          }
+        });
+
+        Promise.all(promises)
+          .then((results) => {
+            results.forEach((result) => {
+              //
+            });
+          })
+          .catch((error) => {
+            //
+          });
+
+        res.status(200).json({
+          status: 200,
+          message: "OK",
+        });
+      })
+      .catch((err) => {
+        return res.status(500).json({
+          status: 500,
+          message: "INTERNAL SERVER ERROR",
+          error: err.message,
+        });
+      });
   },
 };
