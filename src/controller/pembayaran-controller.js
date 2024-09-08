@@ -241,16 +241,16 @@ module.exports = {
           if (rowNumber >= 2) {
             const B = row.getCell("B").value;
             const H = row.getCell("H").value;
-            const I = row.getCell("I").value;
+            // const I = row.getCell("I").value;
             const K = row.getCell("K").value;
             // Pastikan nilai tidak kosong sebelum menambahkannya ke array
-            if (I === "Lunas") {
-              data.push({
-                niup: B,
-                tagihan: H != null ? H - 1000 : 0,
-                total_bayar: K != null ? K - 1000 : 0,
-              });
-            }
+            // if (I === "Lunas") {
+            data.push({
+              niup: B,
+              tagihan: H != null ? H - 1000 : 0,
+              total_bayar: K != null ? K - 1000 : 0,
+            });
+            // }
           }
         });
         const promises = data.map(async (d) => {
