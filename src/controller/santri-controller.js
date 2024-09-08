@@ -346,6 +346,74 @@ module.exports = {
       });
     }
   },
+  getByNiup: async (req, res) => {
+    try {
+      // get data from database
+      const data = await Santri.findOne({
+        where: {
+          niup: req.params.niup,
+        },
+        include: [
+          {
+            model: Penumpang,
+            as: "penumpang",
+            include: [
+              {
+                model: Dropspot,
+                as: "dropspot",
+                include: {
+                  model: Area,
+                  as: "area",
+                },
+              },
+              {
+                model: Tujuan,
+                as: "tujuan",
+                include: {
+                  model: Dropspot,
+                  as: "dropspot",
+                  include: {
+                    model: Area,
+                    as: "area",
+                  },
+                },
+              },
+            ],
+          },
+          {
+            model: SantriPersyaratan,
+            as: "persyaratan",
+            include: {
+              model: Ketuntasan,
+              as: "ketuntasan",
+              where: {
+                isAktif: "Y",
+              },
+            },
+          },
+        ],
+      });
+      if (!data) {
+        return res.status(404).json({
+          status: 404,
+          message: "NOT FOUND",
+          error: `santri tidak ditemukan`,
+        });
+      }
+      data.raw = JSON.parse(data.raw);
+      return res.status(200).json({
+        status: 200,
+        message: "OK",
+        data: data,
+      });
+    } catch (err) {
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
   getDomisili: async (req, res) => {
     try {
       let data;
