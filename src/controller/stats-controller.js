@@ -18,7 +18,7 @@ module.exports = {
         )
     ) AS dropspots
 FROM 
-    Areas A
+    areas A
 JOIN (
     SELECT 
         D.id AS dropspot_id,
@@ -29,11 +29,11 @@ JOIN (
         COUNT(CASE WHEN S.jenis_kelamin = 'L' THEN 1 END) AS jumlah_penumpang_putra,
         COUNT(CASE WHEN S.jenis_kelamin = 'P' THEN 1 END) AS jumlah_penumpang_putri
     FROM 
-        Dropspots D
+        dropspots D
     LEFT JOIN 
-        Penumpangs P ON D.id = P.dropspotId
+        penumpangs P ON D.id = P.dropspotId
     LEFT JOIN 
-        Santris S ON P.santriUuid = S.uuid
+        santris S ON P.santriUuid = S.uuid
     GROUP BY 
         D.id, D.namaDropspot, D.areaId, D.harga
 ) AS dropspots ON A.id = dropspots.areaId
