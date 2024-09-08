@@ -34,7 +34,7 @@ router.use("/ticket", auth, ticketRouter);
 router.use("/ketuntasan", auth, ketuntasanRouter);
 router.use("/pembayaran", auth, pembayaranRouter);
 router.use("/persyaratan", auth, persyaratanRouter);
-router.use("/statistik", auth, statsRouter);
+router.use("/statistik", statsRouter);
 router.use("/user", auth, userRouter);
 
 module.exports = router;
