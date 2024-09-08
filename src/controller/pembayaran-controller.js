@@ -244,13 +244,13 @@ module.exports = {
             const I = row.getCell("I").value;
             const K = row.getCell("K").value;
             // Pastikan nilai tidak kosong sebelum menambahkannya ke array
-            if (I === "Lunas") {
-              data.push({
-                niup: B,
-                tagihan: H - 1000,
-                total_bayar: K - 1000,
-              });
-            }
+            // if (I === "Lunas") {
+            data.push({
+              niup: B,
+              tagihan: H != null ? H - 1000 : 0,
+              total_bayar: K != null ? H - 1000 : 0,
+            });
+            // }
           }
         });
         const promises = data.map(async (d) => {
