@@ -296,6 +296,14 @@ module.exports = {
                 as: "armada",
               },
               {
+                model: Dropspot,
+                as: "dropspot",
+                include: {
+                  model: Area,
+                  as: "area",
+                },
+              },
+              {
                 model: Tujuan,
                 as: "tujuan",
                 include: {
