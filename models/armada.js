@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Armada.belongsTo(models.Dropspot, { as: "dropspot" });
+      Armada.hasMany(models.Penumpang, { as: "penumpang" });
     }
   }
   Armada.init(

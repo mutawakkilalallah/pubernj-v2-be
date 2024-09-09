@@ -6,6 +6,7 @@ const {
   Tujuan,
   Dropspot,
   Area,
+  Armada,
   Ketuntasan,
   sequelize,
 } = require("../../models");
@@ -291,12 +292,8 @@ module.exports = {
             as: "penumpang",
             include: [
               {
-                model: Dropspot,
-                as: "dropspot",
-                include: {
-                  model: Area,
-                  as: "area",
-                },
+                model: Armada,
+                as: "armada",
               },
               {
                 model: Tujuan,
@@ -365,6 +362,10 @@ module.exports = {
                   model: Area,
                   as: "area",
                 },
+              },
+              {
+                model: Armada,
+                as: "armada",
               },
               {
                 model: Tujuan,

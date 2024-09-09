@@ -7,6 +7,7 @@ const {
   daftarPenumpang,
   nonaktifDropspot,
   aktifDropspot,
+  addArmada,
 } = require("../controller/penumpang-controller");
 
 const penumpang = Router();
@@ -18,5 +19,6 @@ penumpang.post("/daftar/:uuid", daftarPenumpang);
 penumpang.post("/tujuan/:uuid", addDropspot);
 penumpang.put("/tujuan/:id/nonaktif", nonaktifDropspot);
 penumpang.put("/tujuan/:id/aktif", aktifDropspot);
+penumpang.put("/armada/:armadaId", addArmada);
 
 module.exports = penumpang;

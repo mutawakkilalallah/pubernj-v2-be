@@ -1,5 +1,5 @@
 const { Op } = require("sequelize");
-const { Area, Dropspot, Armada } = require("../../models");
+const { Area, Dropspot, Armada, Penumpang, Santri } = require("../../models");
 const armadaSchema = require("../validation/armada-schema");
 
 module.exports = {
@@ -18,6 +18,11 @@ module.exports = {
             [Op.like]: `%${search}%`,
           },
           // ...(req.query.area && { areaId: req.query.area }),
+        },
+        include: {
+          model: Penumpang,
+          as: "penumpang",
+          attributes: ["id", "armadaId"],
         },
         limit,
         offset,
@@ -74,14 +79,25 @@ module.exports = {
         where: {
           id: req.params.id,
         },
-        include: {
-          model: Dropspot,
-          as: "dropspot",
-          include: {
-            model: Area,
-            as: "area",
+        include: [
+          {
+            model: Dropspot,
+            as: "dropspot",
+            include: {
+              model: Area,
+              as: "area",
+            },
           },
-        },
+          {
+            model: Penumpang,
+            as: "penumpang",
+            include: {
+              model: Santri,
+              as: "santri",
+              attributes: { exclude: ["raw"] },
+            },
+          },
+        ],
       });
       if (!data) {
         return res.status(404).json({

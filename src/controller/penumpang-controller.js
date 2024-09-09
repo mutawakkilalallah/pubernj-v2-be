@@ -332,67 +332,6 @@ module.exports = {
       });
     }
   },
-  daftarPenumpang: async (req, res) => {
-    const transaction = await sequelize.transaction();
-    try {
-      // get data from database
-      const data = await Penumpang.findOne({
-        where: {
-          santriUuid: req.params.uuid,
-        },
-      });
-      if (!data) {
-        return res.status(404).json({
-          status: 404,
-          message: "NOT FOUND",
-          error: `penumpang tidak ditemukan`,
-        });
-      }
-      if (data.dropspotId) {
-        return res.status(400).json({
-          status: 400,
-          message: "BAD REQUEST",
-          error: "santri sudah memiliki dropspot",
-        });
-      }
-      const { error, value } = penumpangSchema.addDrop.validate(req.body);
-      if (error) {
-        return res.status(400).json({
-          status: 400,
-          message: "BAD REQUEST",
-          error: error.message,
-        });
-      }
-      await data.update(
-        {
-          statusKepulangan: "Y",
-          statusRombongan: "Y",
-          dropspotId: value.dropspotId,
-        },
-        { transaction }
-      );
-      const result = await Tujuan.create(
-        {
-          penumpangId: data.id,
-          dropspotId: value.dropspotId,
-        },
-        { transaction }
-      );
-      await transaction.commit();
-      return res.status(201).json({
-        status: 201,
-        message: "CREATED",
-        data: result,
-      });
-    } catch (err) {
-      await transaction.rollback();
-      return res.status(500).json({
-        status: 500,
-        message: "INTERNAL SERVER ERROR",
-        error: err.message,
-      });
-    }
-  },
   nonaktifDropspot: async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
@@ -524,6 +463,39 @@ module.exports = {
       });
     } catch (err) {
       await transaction.rollback();
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
+  addArmada: async (req, res) => {
+    try {
+      const { error, value } = penumpangSchema.addArmada.validate(req.body);
+      if (error) {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: error.message,
+        });
+      }
+      const result = await Penumpang.update(
+        {
+          armadaId: req.params.armadaId,
+        },
+        {
+          where: {
+            id: value.penumpang,
+          },
+        }
+      );
+      return res.status(200).json({
+        status: 200,
+        message: "OK",
+        data: result,
+      });
+    } catch (err) {
       return res.status(500).json({
         status: 500,
         message: "INTERNAL SERVER ERROR",
