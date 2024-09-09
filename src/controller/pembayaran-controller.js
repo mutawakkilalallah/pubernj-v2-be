@@ -247,8 +247,8 @@ module.exports = {
             // if (I === "Lunas") {
             data.push({
               niup: B,
-              tagihan: H != null ? H - 1000 : 0,
-              total_bayar: K != null ? K - 1000 : 0,
+              tagihan: H != 0 ? H - 1000 : 0,
+              total_bayar: K != 0 ? K - 1000 : 0,
             });
             // }
           }
