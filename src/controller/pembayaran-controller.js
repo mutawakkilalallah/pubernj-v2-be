@@ -25,15 +25,15 @@ module.exports = {
         attributes: {
           include: [
             [
-              Sequelize.literal("`dropspot`.`harga` - `tagihan`"),
+              Sequelize.literal("`tagihan` - `dropspot`.`harga`"),
               "selisih_tagihan",
             ],
             [
-              Sequelize.literal("`dropspot`.`harga` - `totalBayar`"),
+              Sequelize.literal("`totalBayar` - `dropspot`.`harga`"),
               "selisih_tarif_terbayar",
             ],
             [
-              Sequelize.literal("`tagihan` - `totalBayar`"),
+              Sequelize.literal("`totalBayar` - `tagihan`"),
               "selisih_tagihan_terbayar",
             ],
           ],
