@@ -564,7 +564,6 @@ module.exports = {
             statusKepulangan: "Y",
           },
         },
-        limit: 1,
       });
 
       const pageWidth = 16.5; // Lebar dalam cm
