@@ -544,12 +544,12 @@ module.exports = {
       const data = await Santri.findAll({
         attributes: { exclude: ["raw"] },
         where: {
-          // ...(req.user.role == "wilayah" && {
-          //   alias_wilayah: req.user.alias_wilayah,
-          // }),
-          // ...(req.user.role == "daerah" && {
-          //   id_blok: req.user.id_blok,
-          // }),
+          ...(req.user.role == "wilayah" && {
+            alias_wilayah: req.user.alias_wilayah,
+          }),
+          ...(req.user.role == "daerah" && {
+            id_blok: req.user.id_blok,
+          }),
           ...(req.query.wilayah && {
             alias_wilayah: req.query.wilayah,
           }),
@@ -660,7 +660,7 @@ module.exports = {
         doc.text(`c. Putri : 0822-3105-8592`, 1.2, 18);
 
         doc.text(`Tanggal Cetak: ${new Date().toLocaleString()}`, 12.1, 19.6);
-        // doc.text(`Petugas: ${req.user.nama_lengkap}`, 12.1, 20);
+        doc.text(`Petugas: ${req.user.nama_lengkap}`, 12.1, 20);
       });
       // Generate PDF sebagai buffer
       const pdfBuffer = Buffer.from(doc.output("arraybuffer"));
@@ -781,21 +781,16 @@ module.exports = {
 
       doc.text(`Tanggal Cetak: ${new Date().toLocaleString()}`, 12.1, 19.6);
       doc.text(`Petugas: ${req.user.nama_lengkap}`, 12.1, 20);
-      // });
 
-      // Ubah ke Buffer untuk dikirim sebagai biner
-      const pdfOutput = doc.output("arraybuffer"); // Menghasilkan PDF dalam format ArrayBuffer
-      const buffer = Buffer.from(pdfOutput); // Ubah ArrayBuffer ke Buffer
+      // Generate PDF sebagai buffer
+      const pdfBuffer = Buffer.from(doc.output("arraybuffer"));
 
-      // Atur header untuk mengirim file PDF
+      // Atur header untuk pengiriman file PDF
       res.setHeader("Content-Type", "application/pdf");
-      res.setHeader(
-        "Content-Disposition",
-        'attachment; filename="surat_izin.pdf"'
-      );
+      res.setHeader("Content-Disposition", 'inline; filename="generated.pdf"');
 
-      // Kirim buffer sebagai respons
-      res.send(buffer);
+      // Kirim buffer PDF ke frontend
+      res.send(pdfBuffer);
     } catch (err) {
       return res.status(500).json({
         status: 500,
