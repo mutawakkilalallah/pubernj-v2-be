@@ -12,6 +12,12 @@ const { jsPDF } = require("jspdf");
 const fs = require("fs");
 const path = require("path");
 
+async function imageUrlToBase64(url) {
+  const response = await fetch(url);
+  const buffer = await response.arrayBuffer();
+  return `data:image/png;base64,${Buffer.from(buffer).toString("base64")}`;
+}
+
 module.exports = {
   // list all data
   list: async (req, res) => {
@@ -581,7 +587,7 @@ module.exports = {
       const qrPath = path.join(__dirname, "../../assets", "ttd-qr.png");
       const qrBase64 = fs.readFileSync(qrPath, "base64");
 
-      data.forEach((item, index) => {
+      data.forEach(async (item, index) => {
         if (index > 0) {
           doc.addPage();
         }
@@ -625,7 +631,7 @@ module.exports = {
           align: "center",
         });
         doc.text(
-          `Santri putri tanggal 9 Rabiul Awal 1446 H/13 September 2024 M`,
+          `Santri putra tanggal 9 Rabiul Awal 1446 H/13 September 2024 M`,
           8.25,
           9.2,
           { align: "center" }
@@ -650,13 +656,20 @@ module.exports = {
         doc.setFontSize(6);
         doc.text(`Keterangan:`, 1, 16.7);
         doc.text(
-          `1. Kedatangan Santri dan penyerahan surat izin libur ke KAMTIB Wilayah/Daerah selambat-lambatnya pukul 17.00 WIB (Ba’da Maghrib).`,
+          `1. Kedatangan Santri dan penyerahan surat izin libur ke KAMTIB Wilayah/Daerah`,
           1.2,
           17.1
         );
-        doc.text(`a. Informasi Umum : 0856-9736-7832`, 1.2, 17.4);
-        doc.text(`b. Putra : 0896-5479-0122`, 1.2, 17.7);
-        doc.text(`c. Putri : 0822-3105-8592`, 1.2, 18);
+        doc.text(
+          `selambat-lambatnya pukul 17.00 WIB (Ba’da Maghrib).`,
+          1.4,
+          17.4
+        );
+        doc.text(`a. Informasi Umum : 0856-9736-7832`, 1.2, 17.7);
+        doc.text(`b. Putra : 0896-5479-0122`, 1.2, 18);
+        doc.text(`c. Putri : 0822-3105-8592`, 1.2, 18.3);
+
+        // doc.addImage(qrPuber, "PNG", 12.1, 17, 2, 2);
 
         doc.text(`Tanggal Cetak: ${new Date().toLocaleString()}`, 12.1, 19.6);
         doc.text(`Petugas: ${req.user.nama_lengkap}`, 12.1, 20);
@@ -745,7 +758,7 @@ module.exports = {
         align: "center",
       });
       doc.text(
-        `Santri putri tanggal 9 Rabiul Awal 1446 H/13 September 2024 M`,
+        `Santri putra tanggal 9 Rabiul Awal 1446 H/13 September 2024 M`,
         8.25,
         9.2,
         { align: "center" }
@@ -770,13 +783,20 @@ module.exports = {
       doc.setFontSize(6);
       doc.text(`Keterangan:`, 1, 16.7);
       doc.text(
-        `1. Kedatangan Santri dan penyerahan surat izin libur ke KAMTIB Wilayah/Daerah selambat-lambatnya pukul 17.00 WIB (Ba’da Maghrib).`,
+        `1. Kedatangan Santri dan penyerahan surat izin libur ke KAMTIB Wilayah/Daerah`,
         1.2,
         17.1
       );
-      doc.text(`a. Informasi Umum : 0856-9736-7832`, 1.2, 17.4);
-      doc.text(`b. Putra : 0896-5479-0122`, 1.2, 17.7);
-      doc.text(`c. Putri : 0822-3105-8592`, 1.2, 18);
+      doc.text(
+        `selambat-lambatnya pukul 17.00 WIB (Ba’da Maghrib).`,
+        1.4,
+        17.4
+      );
+      doc.text(`a. Informasi Umum : 0856-9736-7832`, 1.2, 17.7);
+      doc.text(`b. Putra : 0896-5479-0122`, 1.2, 18);
+      doc.text(`c. Putri : 0822-3105-8592`, 1.2, 18.3);
+
+      // doc.addImage(qrPuber, "PNG", 12.1, 17, 2, 2);
 
       doc.text(`Tanggal Cetak: ${new Date().toLocaleString()}`, 12.1, 19.6);
       doc.text(`Petugas: ${req.user.nama_lengkap}`, 12.1, 20);

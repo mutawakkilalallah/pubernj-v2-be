@@ -30,6 +30,6 @@ app.get("/", async (req, res) => {
 
 app.use("/api/v2", apiRouter);
 
-app.listen(process.env.PORT, () => {
+app.listen(process.env.PORT, "172.16.43.60", () => {
   console.log(`PUBER API started on port ${process.env.PORT}`);
 });
