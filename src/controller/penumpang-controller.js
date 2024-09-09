@@ -1,4 +1,4 @@
-const { Op, where } = require("sequelize");
+const { Op } = require("sequelize");
 const {
   Penumpang,
   Santri,
@@ -8,6 +8,9 @@ const {
   sequelize,
 } = require("../../models");
 const penumpangSchema = require("../validation/penumpang-schema");
+const { jsPDF } = require("jspdf");
+const fs = require("fs");
+const path = require("path");
 
 module.exports = {
   // list all data
@@ -495,6 +498,275 @@ module.exports = {
         message: "OK",
         data: result,
       });
+    } catch (err) {
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
+  cetakSurat: async (req, res) => {
+    try {
+      const data = await Santri.findAll({
+        attributes: { exclude: ["raw"] },
+        where: {
+          ...(req.user.role == "wilayah" && {
+            alias_wilayah: req.user.alias_wilayah,
+          }),
+          ...(req.user.role == "daerah" && {
+            id_blok: req.user.id_blok,
+          }),
+          ...(req.query.wilayah && {
+            alias_wilayah: req.query.wilayah,
+          }),
+          ...(req.query.blok && {
+            id_blok: req.query.blok,
+          }),
+        },
+        include: {
+          model: Penumpang,
+          as: "penumpang",
+          where: {
+            statusKepulangan: "Y",
+          },
+        },
+      });
+
+      const pageWidth = 16.5; // Lebar dalam cm
+      const pageHeight = 21; // Tinggi dalam cm
+
+      // Buat dokumen jsPDF
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "cm",
+        format: [pageWidth, pageHeight],
+      });
+
+      const kopPath = path.join(__dirname, "../../assets", "kop.png");
+      const kopBase64 = fs.readFileSync(kopPath, "base64");
+      const qrPath = path.join(__dirname, "../../assets", "ttd-qr.png");
+      const qrBase64 = fs.readFileSync(qrPath, "base64");
+
+      data.forEach((item, index) => {
+        if (index > 0) {
+          doc.addPage();
+        }
+
+        doc.addImage(kopBase64, "PNG", 1, 0.5, 14.5, 3);
+
+        doc.setFont("Helvetica");
+        doc.setFontSize(8);
+        doc.text("SURAT IZIN LIBUR MAULID 1446 H", 8.25, 3.8, {
+          align: "center",
+        });
+
+        doc.text(`NOMOR : NJ-B/0457/A.IX/09.2024`, 8.25, 4.2, {
+          align: "center",
+        });
+
+        doc.text(
+          `Yang bertanda tangan dibawah ini, Kepala Pondok Pesantren Nurul Jadid Paiton Probolinggo Jawa Timur `,
+          1,
+          4.8
+        );
+        doc.text(`memberikan izin libur kepada :`, 1, 5.3);
+
+        doc.text(`NIUP : ${item.niup}`, 1, 6);
+        doc.text(`Nama : ${item.nama_lengkap}`, 1, 6.4);
+        doc.text(`Wilayah : ${item.wilayah}`, 1, 6.8);
+        doc.text(`Daerah : ${item.blok}`, 1, 7.2);
+        doc.text(
+          `Alamat : ${item.kecamatan}, ${item.provinsi}, ${item.negara}`,
+          1,
+          7.6
+        );
+
+        doc.text(
+          `Santri putri tanggal 8 Rabiul Awal 1446 H/12 September 2024 M`,
+          8.25,
+          8.4,
+          { align: "center" }
+        );
+        doc.text(`s.d 17 Rabiul Awal 1446 H/21 September 2024 M.`, 8.25, 8.8, {
+          align: "center",
+        });
+        doc.text(
+          `Santri putri tanggal 9 Rabiul Awal 1446 H/13 September 2024 M`,
+          8.25,
+          9.2,
+          { align: "center" }
+        );
+        doc.text(`s.d 18 Rabiul Awal 1446 H/22 September 2024 M.`, 8.25, 9.6, {
+          align: "center",
+        });
+
+        doc.text(
+          `Demikian surat izin ini dibuat dengan sebenarnya dan untuk digunakan sebagaimana mestinya`,
+          1,
+          10.1
+        );
+        doc.text(`Paiton,`, 1, 10.7);
+        doc.text(`06 Rabiul Awal 1446 H`, 2.3, 10.7);
+        doc.text(`09 September 2024 M`, 2.3, 11.1);
+
+        doc.addImage(qrBase64, "PNG", 1, 11.5, 2.5, 2.5);
+        doc.text("KH. ABD. HAMID WAHID, M.Ag.", 1, 14.7);
+        doc.text("NIUP : 31820500002", 1, 15.1);
+
+        doc.setFontSize(6);
+        doc.text(`Keterangan:`, 1, 16.7);
+        doc.text(
+          `1. Kedatangan Santri dan penyerahan surat izin libur ke KAMTIB Wilayah/Daerah selambat-lambatnya pukul 17.00 WIB (Ba’da Maghrib).`,
+          1.2,
+          17.1
+        );
+        doc.text(`a. Informasi Umum : 0856-9736-7832`, 1.2, 17.4);
+        doc.text(`b. Putra : 0896-5479-0122`, 1.2, 17.7);
+        doc.text(`c. Putri : 0822-3105-8592`, 1.2, 18);
+
+        doc.text(`Tanggal Cetak: ${new Date().toLocaleString()}`, 12.1, 19.6);
+        doc.text(`Petugas: ${req.user.nama_lengkap}`, 12.1, 20);
+      });
+
+      // Ubah ke Buffer untuk dikirim sebagai biner
+      const pdfOutput = doc.output("arraybuffer"); // Menghasilkan PDF dalam format ArrayBuffer
+      const buffer = Buffer.from(pdfOutput); // Ubah ArrayBuffer ke Buffer
+
+      // Atur header untuk mengirim file PDF
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        'attachment; filename="surat_izin.pdf"'
+      );
+
+      // Kirim buffer sebagai respons
+      res.send(buffer);
+    } catch (err) {
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
+  cetakSuratPersonal: async (req, res) => {
+    try {
+      const data = await Santri.findOne({
+        attributes: { exclude: ["raw"] },
+        where: {
+          uuid: req.params.uuid,
+        },
+        include: {
+          model: Penumpang,
+          as: "penumpang",
+        },
+      });
+
+      const pageWidth = 16.5; // Lebar dalam cm
+      const pageHeight = 21; // Tinggi dalam cm
+
+      // Buat dokumen jsPDF
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "cm",
+        format: [pageWidth, pageHeight],
+      });
+
+      const kopPath = path.join(__dirname, "../../assets", "kop.png");
+      const kopBase64 = fs.readFileSync(kopPath, "base64");
+      const qrPath = path.join(__dirname, "../../assets", "ttd-qr.png");
+      const qrBase64 = fs.readFileSync(qrPath, "base64");
+
+      doc.addImage(kopBase64, "PNG", 1, 0.5, 14.5, 3);
+
+      doc.setFont("Helvetica");
+      doc.setFontSize(8);
+      doc.text("SURAT IZIN LIBUR MAULID 1446 H", 8.25, 3.8, {
+        align: "center",
+      });
+
+      doc.text(`NOMOR : NJ-B/0457/A.IX/09.2024`, 8.25, 4.2, {
+        align: "center",
+      });
+
+      doc.text(
+        `Yang bertanda tangan dibawah ini, Kepala Pondok Pesantren Nurul Jadid Paiton Probolinggo Jawa Timur `,
+        1,
+        4.8
+      );
+      doc.text(`memberikan izin libur kepada :`, 1, 5.3);
+
+      doc.text(`NIUP : ${data.niup}`, 1, 6);
+      doc.text(`Nama : ${data.nama_lengkap}`, 1, 6.4);
+      doc.text(`Wilayah : ${data.wilayah}`, 1, 6.8);
+      doc.text(`Daerah : ${data.blok}`, 1, 7.2);
+      doc.text(
+        `Alamat : ${data.kecamatan}, ${data.provinsi}, ${data.negara}`,
+        1,
+        7.6
+      );
+
+      doc.text(
+        `Santri putri tanggal 8 Rabiul Awal 1446 H/12 September 2024 M`,
+        8.25,
+        8.4,
+        { align: "center" }
+      );
+      doc.text(`s.d 17 Rabiul Awal 1446 H/21 September 2024 M.`, 8.25, 8.8, {
+        align: "center",
+      });
+      doc.text(
+        `Santri putri tanggal 9 Rabiul Awal 1446 H/13 September 2024 M`,
+        8.25,
+        9.2,
+        { align: "center" }
+      );
+      doc.text(`s.d 18 Rabiul Awal 1446 H/22 September 2024 M.`, 8.25, 9.6, {
+        align: "center",
+      });
+
+      doc.text(
+        `Demikian surat izin ini dibuat dengan sebenarnya dan untuk digunakan sebagaimana mestinya`,
+        1,
+        10.1
+      );
+      doc.text(`Paiton,`, 1, 10.7);
+      doc.text(`06 Rabiul Awal 1446 H`, 2.3, 10.7);
+      doc.text(`09 September 2024 M`, 2.3, 11.1);
+
+      doc.addImage(qrBase64, "PNG", 1, 11.5, 2.5, 2.5);
+      doc.text("KH. ABD. HAMID WAHID, M.Ag.", 1, 14.7);
+      doc.text("NIUP : 31820500002", 1, 15.1);
+
+      doc.setFontSize(6);
+      doc.text(`Keterangan:`, 1, 16.7);
+      doc.text(
+        `1. Kedatangan Santri dan penyerahan surat izin libur ke KAMTIB Wilayah/Daerah selambat-lambatnya pukul 17.00 WIB (Ba’da Maghrib).`,
+        1.2,
+        17.1
+      );
+      doc.text(`a. Informasi Umum : 0856-9736-7832`, 1.2, 17.4);
+      doc.text(`b. Putra : 0896-5479-0122`, 1.2, 17.7);
+      doc.text(`c. Putri : 0822-3105-8592`, 1.2, 18);
+
+      doc.text(`Tanggal Cetak: ${new Date().toLocaleString()}`, 12.1, 19.6);
+      doc.text(`Petugas: ${req.user.nama_lengkap}`, 12.1, 20);
+      // });
+
+      // Ubah ke Buffer untuk dikirim sebagai biner
+      const pdfOutput = doc.output("arraybuffer"); // Menghasilkan PDF dalam format ArrayBuffer
+      const buffer = Buffer.from(pdfOutput); // Ubah ArrayBuffer ke Buffer
+
+      // Atur header untuk mengirim file PDF
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        'attachment; filename="surat_izin.pdf"'
+      );
+
+      // Kirim buffer sebagai respons
+      res.send(buffer);
     } catch (err) {
       return res.status(500).json({
         status: 500,

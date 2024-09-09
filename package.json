@@ -24,6 +24,7 @@
     "express": "^4.19.2",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
+    "jspdf": "^2.5.1",
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.10.3",
     "sequelize": "^6.37.3",

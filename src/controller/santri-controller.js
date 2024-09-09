@@ -453,4 +453,54 @@ module.exports = {
       });
     }
   },
+  filterWilayah: async (req, res) => {
+    try {
+      let wilayah;
+      if (req.user.role === "wilayah") {
+        wilayah = await sequelize.query(
+          `SELECT DISTINCT alias_wilayah, wilayah FROM santris WHERE alias_wilayah IS NOT NULL AND alias_wilayah =  '${req.user.alias_wilayah}';`
+        );
+      } else if (req.user.role === "daerah") {
+        wilayah = await sequelize.query(
+          `SELECT DISTINCT alias_wilayah, wilayah, id_blok FROM santris WHERE alias_wilayah IS NOT NULL AND id_blok =  '${req.user.id_blok}';`
+        );
+      } else {
+        wilayah = await sequelize.query(
+          `SELECT DISTINCT alias_wilayah, wilayah FROM santris WHERE alias_wilayah IS NOT NULL;`
+        );
+      }
+      res.json(wilayah[0]);
+    } catch (err) {
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
+  filterBlok: async (req, res) => {
+    try {
+      let blok;
+      if (req.user.role === "wilayah") {
+        blok = await sequelize.query(
+          `SELECT DISTINCT id_blok, blok FROM santris WHERE id_blok IS NOT NULL AND alias_wilayah = '${req.query.wilayah}' AND alias_wilayah = '${req.user.alias_wilayah}';`
+        );
+      } else if (req.user.role === "daerah") {
+        blok = await sequelize.query(
+          `SELECT DISTINCT id_blok, blok FROM santris WHERE id_blok IS NOT NULL AND alias_wilayah = '${req.query.wilayah}' AND id_blok = '${req.user.id_blok}';`
+        );
+      } else {
+        blok = await sequelize.query(
+          `SELECT DISTINCT id_blok, blok FROM santris WHERE id_blok IS NOT NULL AND alias_wilayah = '${req.query.wilayah}';`
+        );
+      }
+      res.json(blok[0]);
+    } catch (err) {
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
 };
