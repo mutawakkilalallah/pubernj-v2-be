@@ -17,13 +17,25 @@ module.exports = {
           namaArmada: {
             [Op.like]: `%${search}%`,
           },
-          // ...(req.query.area && { areaId: req.query.area }),
+          ...(req.query.type && { type: req.query.type }),
+          ...(req.query.jenis && { jenis: req.query.jenis }),
         },
-        include: {
-          model: Penumpang,
-          as: "penumpang",
-          attributes: ["id", "armadaId"],
-        },
+        include: [
+          {
+            model: Dropspot,
+            as: "dropspot",
+            attributes: ["id", "areaId", "namaDropspot"],
+            where: {
+              ...(req.query.area && { areaId: req.query.area }),
+              ...(req.query.dropspot && { id: req.query.dropspot }),
+            },
+          },
+          {
+            model: Penumpang,
+            as: "penumpang",
+            attributes: ["id", "armadaId"],
+          },
+        ],
         limit,
         offset,
       });
