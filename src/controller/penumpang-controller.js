@@ -5,6 +5,8 @@ const {
   Tujuan,
   Dropspot,
   Area,
+  User,
+  Armada,
   sequelize,
 } = require("../../models");
 const penumpangSchema = require("../validation/penumpang-schema");
@@ -74,6 +76,14 @@ module.exports = {
               attributes: {
                 exclude: ["picInt", "hpPicInt", "picExt", "hpPicExt"],
               },
+            },
+          },
+          {
+            model: Armada,
+            as: "armada",
+            include: {
+              model: User,
+              as: "user",
             },
           },
         ],
