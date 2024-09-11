@@ -97,7 +97,14 @@ module.exports = {
       const offset = 0 + (page - 1) * limit;
       // get data from database
       const data = await User.findAndCountAll({
-        attributes: ["uuid", "nama_lengkap", "niup", "createdAt", "updatedAt"],
+        attributes: [
+          "uuid",
+          "nama_lengkap",
+          "niup",
+          "hp",
+          "createdAt",
+          "updatedAt",
+        ],
         where: {
           [Op.and]: {
             [Op.or]: {
@@ -140,7 +147,14 @@ module.exports = {
     try {
       // get data from database
       const data = await User.findOne({
-        attributes: ["uuid", "nama_lengkap", "niup", "createdAt", "updatedAt"],
+        attributes: [
+          "uuid",
+          "nama_lengkap",
+          "niup",
+          "hp",
+          "createdAt",
+          "updatedAt",
+        ],
         where: {
           [Op.and]: {
             uuid: req.params.uuid,
