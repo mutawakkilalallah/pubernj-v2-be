@@ -379,6 +379,10 @@ module.exports = {
               {
                 model: Armada,
                 as: "armada",
+                include: {
+                  model: User,
+                  as: "user",
+                },
               },
               {
                 model: Tujuan,
