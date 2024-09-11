@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Armada.belongsTo(models.Dropspot, { as: "dropspot" });
       Armada.hasMany(models.Penumpang, { as: "penumpang" });
+      Armada.belongsTo(models.User, { as: "user" });
     }
   }
   Armada.init(
@@ -59,6 +60,10 @@ module.exports = (sequelize, DataTypes) => {
           model: "dropspots",
           key: "id",
         },
+      },
+      userUuid: {
+        type: DataTypes.STRING,
+        allowNull: true,
       },
       createdAt: {
         allowNull: false,

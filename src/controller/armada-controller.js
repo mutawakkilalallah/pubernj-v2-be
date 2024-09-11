@@ -1,5 +1,12 @@
 const { Op } = require("sequelize");
-const { Area, Dropspot, Armada, Penumpang, Santri } = require("../../models");
+const {
+  Area,
+  Dropspot,
+  Armada,
+  Penumpang,
+  Santri,
+  User,
+} = require("../../models");
 const armadaSchema = require("../validation/armada-schema");
 
 module.exports = {
@@ -20,6 +27,7 @@ module.exports = {
           ...(req.query.type && { type: req.query.type }),
           ...(req.query.jenis && { jenis: req.query.jenis }),
         },
+        attributes: { exclude: ["UserUuid"] },
         include: [
           {
             model: Dropspot,
@@ -34,6 +42,11 @@ module.exports = {
             model: Penumpang,
             as: "penumpang",
             attributes: ["id", "armadaId"],
+          },
+          {
+            model: User,
+            as: "user",
+            attributes: { exclude: ["password"] },
           },
         ],
         limit,
@@ -108,6 +121,11 @@ module.exports = {
               as: "santri",
               attributes: { exclude: ["raw"] },
             },
+          },
+          {
+            model: User,
+            as: "user",
+            attributes: { exclude: ["password"] },
           },
         ],
       });
