@@ -116,11 +116,21 @@ module.exports = {
           {
             model: Penumpang,
             as: "penumpang",
-            include: {
+            include: [
+              {
               model: Santri,
               as: "santri",
               attributes: { exclude: ["raw"] },
             },
+              {
+            model: Dropspot,
+            as: "dropspot",
+            include: {
+              model: Area,
+              as: "area",
+            },
+          },
+              ]
           },
           {
             model: User,
