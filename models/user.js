@@ -75,6 +75,7 @@ module.exports = (sequelize, DataTypes) => {
           "keuangan",
           "ebekal",
           "p4nj",
+          "walisantri",
         ],
       },
       createdAt: {
