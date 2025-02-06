@@ -1,11 +1,139 @@
+const { Op, fn, col } = require("sequelize");
 const bcrypt = require("bcrypt");
 const JWT = require("jsonwebtoken");
-const { User, RefreshToken } = require("../../models");
+const { User, Santri, RefreshToken, sequelize } = require("../../models");
 const authSchema = require("../validation/auth-schema");
 const axios = require("axios");
 
 module.exports = {
   //   login
+  loginWs: async (req, res) => {
+    try {
+      const { error, value } = authSchema.loginWs.validate(req.body);
+      if (error) {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: error.message,
+        });
+      }
+
+      const pwdResult = value.password.replace(
+        /(\d{4})(\d{2})(\d{2})/,
+        "$1-$2-$3"
+      );
+
+      // get data from database
+      const user = await User.findOne({
+        where: {
+          username: value.username,
+        },
+      });
+
+      if (!user) {
+        console.log("buat dulu");
+        const santri = await Santri.findOne({
+          where: {
+            niup: value.username,
+            [Op.and]: [
+              sequelize.literal(
+                `JSON_EXTRACT(raw, '$.tanggal_lahir') = '${pwdResult}'`
+              ),
+            ],
+          },
+        });
+
+        if (!santri) {
+          return res.status(404).json({
+            status: 404,
+            message: "NOT FOUND",
+            error: `tidak ditemukan santri dengan niup tersebut`,
+          });
+        }
+
+        value.password = await bcrypt.hashSync(value.password, 12);
+        const userGenerated = {
+          uuid: santri.uuid,
+          nama_lengkap: santri.nama_lengkap,
+          niup: value.username,
+          jenis_kelamin: santri.jenis_kelamin,
+          username: value.username,
+          password: value.password,
+          role: "walisantri",
+        };
+
+        const result = await User.create(userGenerated);
+        result.password = null;
+
+        const tokenGenerated = await JWT.sign(
+          { user },
+          process.env.SECRET_KEY,
+          {
+            expiresIn: "30m",
+          }
+        );
+
+        const refreshTokenGenerated = await JWT.sign(
+          { uuid: userGenerated.uuid },
+          process.env.SECRET_KEY
+        );
+
+        await RefreshToken.create({
+          token: refreshTokenGenerated,
+        });
+        return res.status(200).json({
+          status: 200,
+          message: "OK",
+          token: tokenGenerated,
+          refreshToken: refreshTokenGenerated,
+          data: result,
+        });
+      } else {
+        console.log("langsung saja");
+
+        const validPassword = await bcrypt.compare(
+          value.password,
+          user.password
+        );
+        if (!validPassword) {
+          return res.status(401).json({
+            status: 401,
+            message: "UNAUTHORIZED",
+            error: `invalid credentials`,
+          });
+        }
+
+        user.password = null;
+
+        const token = await JWT.sign({ user }, process.env.SECRET_KEY, {
+          expiresIn: "30m",
+        });
+
+        const refreshToken = await JWT.sign(
+          { uuid: user.uuid },
+          process.env.SECRET_KEY
+        );
+
+        await RefreshToken.create({
+          token: refreshToken,
+        });
+
+        return res.status(200).json({
+          status: 200,
+          message: "OK",
+          token: token,
+          refreshToken: refreshToken,
+          data: user,
+        });
+      }
+    } catch (err) {
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
   login: async (req, res) => {
     try {
       const { error, value } = authSchema.login.validate(req.body);

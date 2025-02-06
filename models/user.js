@@ -70,6 +70,7 @@ module.exports = (sequelize, DataTypes) => {
           "bps",
           "keuangan",
           "p4nj",
+          "walisantri",
         ],
       },
       createdAt: {
