@@ -1,5 +1,5 @@
 const { Op } = require("sequelize");
-const { User } = require("../../models");
+const { User, Armada } = require("../../models");
 const axios = require("axios");
 const pendampingSchema = require("../validation/pendamping-schema");
 const bcrypt = require("bcrypt");
@@ -97,7 +97,14 @@ module.exports = {
       const offset = 0 + (page - 1) * limit;
       // get data from database
       const data = await User.findAndCountAll({
-        attributes: ["uuid", "nama_lengkap", "niup", "createdAt", "updatedAt"],
+        attributes: [
+          "uuid",
+          "nama_lengkap",
+          "niup",
+          "hp",
+          "createdAt",
+          "updatedAt",
+        ],
         where: {
           [Op.and]: {
             [Op.or]: {
@@ -108,7 +115,7 @@ module.exports = {
                 [Op.like]: `%${search}%`,
               },
             },
-            role: "pendamping",
+            ...(req.query.in_pendamping == "Y" && { role: "pendamping" }),
           },
         },
         limit,
@@ -140,7 +147,14 @@ module.exports = {
     try {
       // get data from database
       const data = await User.findOne({
-        attributes: ["uuid", "nama_lengkap", "niup", "createdAt", "updatedAt"],
+        attributes: [
+          "uuid",
+          "nama_lengkap",
+          "niup",
+          "hp",
+          "createdAt",
+          "updatedAt",
+        ],
         where: {
           [Op.and]: {
             uuid: req.params.uuid,
@@ -172,6 +186,45 @@ module.exports = {
       });
     }
   },
+  //   update data
+  update: async (req, res) => {
+    try {
+      // get data from database
+      const data = await User.findOne({
+        where: {
+          uuid: req.params.uuid,
+        },
+      });
+      if (!data) {
+        return res.status(404).json({
+          status: 404,
+          message: "NOT FOUND",
+          error: `pendamping tidak ditemukan`,
+        });
+      }
+      const { error, value } = pendampingSchema.edit.validate(req.body);
+      if (error) {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: error.message,
+        });
+      }
+      const result = await data.update(value);
+
+      return res.status(200).json({
+        status: 200,
+        message: "OK",
+        data: result,
+      });
+    } catch (err) {
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
   //   remove data
   remove: async (req, res) => {
     try {
@@ -192,6 +245,64 @@ module.exports = {
       await data.destroy();
 
       return res.status(204).json();
+    } catch (err) {
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
+  addArmada: async (req, res) => {
+    try {
+      // get data from database
+      const data = await Armada.findOne({
+        where: {
+          id: req.params.id,
+        },
+      });
+      if (!data) {
+        return res.status(404).json({
+          status: 404,
+          message: "NOT FOUND",
+          error: `armada tidak ditemukan`,
+        });
+      }
+      const result = await data.update({ userUuid: req.params.uuid });
+      return res.status(200).json({
+        status: 200,
+        message: "OK",
+        data: result,
+      });
+    } catch (err) {
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
+  deleteArmada: async (req, res) => {
+    try {
+      // get data from database
+      const data = await Armada.findOne({
+        where: {
+          id: req.params.id,
+        },
+      });
+      if (!data) {
+        return res.status(404).json({
+          status: 404,
+          message: "NOT FOUND",
+          error: `armada tidak ditemukan`,
+        });
+      }
+      const result = await data.update({ userUuid: null });
+      return res.status(200).json({
+        status: 200,
+        message: "OK",
+        data: result,
+      });
     } catch (err) {
       return res.status(500).json({
         status: 500,

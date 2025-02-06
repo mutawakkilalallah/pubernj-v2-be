@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       Penumpang.hasMany(models.Tujuan, { as: "tujuan" });
       Penumpang.belongsTo(models.Santri, { as: "santri" });
       Penumpang.belongsTo(models.Dropspot, { as: "dropspot" });
+      Penumpang.belongsTo(models.Armada, { as: "armada" });
     }
   }
   Penumpang.init(
@@ -59,6 +60,15 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: null,
         references: {
           model: "dropspots",
+          key: "id",
+        },
+      },
+      armadaId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: null,
+        references: {
+          model: "armadas",
           key: "id",
         },
       },

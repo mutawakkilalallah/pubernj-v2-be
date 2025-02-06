@@ -6,6 +6,9 @@ const {
   Tujuan,
   Dropspot,
   Area,
+  Armada,
+  User,
+  Ketuntasan,
   sequelize,
 } = require("../../models");
 const axios = require("axios");
@@ -211,9 +214,10 @@ module.exports = {
               [Op.like]: `%${search}%`,
             },
           },
-          ...(req.user.user.role === "daerah" && { id_blok: req.id_blok }),
-          ...(req.user.user.role === "wilayah" && {
-            alias_wilayah: req.wilayah,
+
+          ...(req.user.role === "daerah" && { id_blok: req.user.id_blok }),
+          ...(req.user.role === "wilayah" && {
+            alias_wilayah: req.user.alias_wilayah,
           }),
           ...(req.query.wilayah && { alias_wilayah: req.query.wilayah }),
           ...(req.query.blok && { id_blok: req.query.blok }),
@@ -289,6 +293,14 @@ module.exports = {
             as: "penumpang",
             include: [
               {
+                model: Armada,
+                as: "armada",
+                include: {
+                  model: User,
+                  as: "user",
+                },
+              },
+              {
                 model: Dropspot,
                 as: "dropspot",
                 include: {
@@ -309,6 +321,93 @@ module.exports = {
                 },
               },
             ],
+          },
+          {
+            model: SantriPersyaratan,
+            as: "persyaratan",
+            include: {
+              model: Ketuntasan,
+              as: "ketuntasan",
+              where: {
+                isAktif: "Y",
+              },
+            },
+          },
+        ],
+      });
+      if (!data) {
+        return res.status(404).json({
+          status: 404,
+          message: "NOT FOUND",
+          error: `santri tidak ditemukan`,
+        });
+      }
+      data.raw = JSON.parse(data.raw);
+      return res.status(200).json({
+        status: 200,
+        message: "OK",
+        data: data,
+      });
+    } catch (err) {
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
+  getByNiup: async (req, res) => {
+    try {
+      // get data from database
+      const data = await Santri.findOne({
+        where: {
+          niup: req.params.niup,
+        },
+        include: [
+          {
+            model: Penumpang,
+            as: "penumpang",
+            include: [
+              {
+                model: Dropspot,
+                as: "dropspot",
+                include: {
+                  model: Area,
+                  as: "area",
+                },
+              },
+              {
+                model: Armada,
+                as: "armada",
+                include: {
+                  model: User,
+                  as: "user",
+                },
+              },
+              {
+                model: Tujuan,
+                as: "tujuan",
+                include: {
+                  model: Dropspot,
+                  as: "dropspot",
+                  include: {
+                    model: Area,
+                    as: "area",
+                  },
+                },
+              },
+            ],
+          },
+          {
+            model: SantriPersyaratan,
+            as: "persyaratan",
+            include: {
+              model: Ketuntasan,
+              as: "ketuntasan",
+              where: {
+                isAktif: "Y",
+              },
+            },
           },
         ],
       });
@@ -355,6 +454,56 @@ module.exports = {
         message: "OK",
         data: data[0],
       });
+    } catch (err) {
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
+  filterWilayah: async (req, res) => {
+    try {
+      let wilayah;
+      if (req.user.role === "wilayah") {
+        wilayah = await sequelize.query(
+          `SELECT DISTINCT alias_wilayah, wilayah FROM santris WHERE alias_wilayah IS NOT NULL AND alias_wilayah =  '${req.user.alias_wilayah}';`
+        );
+      } else if (req.user.role === "daerah") {
+        wilayah = await sequelize.query(
+          `SELECT DISTINCT alias_wilayah, wilayah, id_blok FROM santris WHERE alias_wilayah IS NOT NULL AND id_blok =  '${req.user.id_blok}';`
+        );
+      } else {
+        wilayah = await sequelize.query(
+          `SELECT DISTINCT alias_wilayah, wilayah FROM santris WHERE alias_wilayah IS NOT NULL;`
+        );
+      }
+      res.json(wilayah[0]);
+    } catch (err) {
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
+  filterBlok: async (req, res) => {
+    try {
+      let blok;
+      if (req.user.role === "wilayah") {
+        blok = await sequelize.query(
+          `SELECT DISTINCT id_blok, blok FROM santris WHERE id_blok IS NOT NULL AND alias_wilayah = '${req.query.wilayah}' AND alias_wilayah = '${req.user.alias_wilayah}';`
+        );
+      } else if (req.user.role === "daerah") {
+        blok = await sequelize.query(
+          `SELECT DISTINCT id_blok, blok FROM santris WHERE id_blok IS NOT NULL AND alias_wilayah = '${req.query.wilayah}' AND id_blok = '${req.user.id_blok}';`
+        );
+      } else {
+        blok = await sequelize.query(
+          `SELECT DISTINCT id_blok, blok FROM santris WHERE id_blok IS NOT NULL AND alias_wilayah = '${req.query.wilayah}';`
+        );
+      }
+      res.json(blok[0]);
     } catch (err) {
       return res.status(500).json({
         status: 500,

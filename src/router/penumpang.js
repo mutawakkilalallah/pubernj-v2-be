@@ -7,16 +7,24 @@ const {
   daftarPenumpang,
   nonaktifDropspot,
   aktifDropspot,
+  addArmada,
+  cetakSurat,
+  cetakSuratPersonal,
+  deleteArmada,
 } = require("../controller/penumpang-controller");
 
 const penumpang = Router();
 
 penumpang.get("/", list);
-penumpang.put("/status-kepulangan/:uuid", statusKepulangan);
-penumpang.put("/status-rombongan/:uuid", statusRombongan);
-penumpang.post("/daftar/:uuid", daftarPenumpang);
-penumpang.post("/tujuan/:uuid", addDropspot);
-penumpang.put("/tujuan/:id/nonaktif", nonaktifDropspot);
-penumpang.put("/tujuan/:id/aktif", aktifDropspot);
+//penumpang.put("/status-kepulangan/:uuid", statusKepulangan);
+//penumpang.put("/status-rombongan/:uuid", statusRombongan);
+//penumpang.post("/daftar/:uuid", daftarPenumpang);
+//penumpang.post("/tujuan/:uuid", addDropspot);
+//penumpang.put("/tujuan/:id/nonaktif", nonaktifDropspot);
+//penumpang.put("/tujuan/:id/aktif", aktifDropspot);
+penumpang.put("/armada/:armadaId", addArmada);
+penumpang.put("/armada-hapus", deleteArmada);
+penumpang.get("/cetak-surat", cetakSurat);
+penumpang.get("/cetak-personal/:uuid", cetakSuratPersonal);
 
 module.exports = penumpang;

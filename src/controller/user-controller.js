@@ -1,5 +1,5 @@
 const { Op } = require("sequelize");
-const { User } = require("../../models");
+const { User, Armada } = require("../../models");
 const axios = require("axios");
 const userSchema = require("../validation/user-schema");
 const bcrypt = require("bcrypt");
@@ -27,6 +27,10 @@ module.exports = {
               },
             },
           },
+        },
+        include: {
+          model: Armada,
+          as: "armada",
         },
         limit,
         offset,

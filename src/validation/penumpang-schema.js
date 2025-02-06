@@ -10,6 +10,9 @@ const areaSchema = {
   addDrop: Joi.object({
     dropspotId: Joi.required(),
   }),
+  addArmada: Joi.object({
+    penumpang: Joi.array().required(),
+  }),
 };
 
 module.exports = areaSchema;

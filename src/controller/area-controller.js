@@ -18,6 +18,10 @@ module.exports = {
             [Op.like]: `%${search}%`,
           },
         },
+        include: {
+          model: Dropspot,
+          as: "dropspot",
+        },
         limit,
         offset,
       });
