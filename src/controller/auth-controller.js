@@ -167,7 +167,7 @@ module.exports = {
       }
       user.password = null;
       const token = await JWT.sign({ user }, process.env.SECRET_KEY, {
-        expiresIn: "30m",
+        expiresIn: "12h",
       });
       const refreshToken = await JWT.sign(
         { uuid: user.uuid },
@@ -223,7 +223,7 @@ module.exports = {
           });
         }
         const token = await JWT.sign({ user }, process.env.SECRET_KEY, {
-          expiresIn: "30m",
+          expiresIn: "12h",
         });
         const refreshToken = await JWT.sign(
           { uuid: user.uuid },
@@ -294,6 +294,38 @@ module.exports = {
       );
 
       res.contentType("image/jpeg").send(Buffer.from(resp.data, "binary"));
+    } catch (err) {
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
+  getByCard: async (req, res) => {
+    try {
+      if (!req.params.tag) {
+        return res.status(400).json({
+          status: 400,
+          message: "BAD REQUEST",
+          error: "tag harus di isi",
+        });
+      }
+
+      const resp = await axios.get(
+        `${process.env.PEDATREN_URL}/person/card/${req.params.tag}`,
+        {
+          headers: {
+            "x-api-key": process.env.PEDATREN_TOKEN,
+          },
+        }
+      );
+
+      res.status(200).json({
+        status: 200,
+        message: "OK",
+        data: resp.data,
+      });
     } catch (err) {
       return res.status(500).json({
         status: 500,

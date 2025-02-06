@@ -1,5 +1,12 @@
 const { Op } = require("sequelize");
-const { Area, Dropspot, Armada } = require("../../models");
+const {
+  Area,
+  Dropspot,
+  Armada,
+  Penumpang,
+  Santri,
+  User,
+} = require("../../models");
 const armadaSchema = require("../validation/armada-schema");
 
 module.exports = {
@@ -17,8 +24,31 @@ module.exports = {
           namaArmada: {
             [Op.like]: `%${search}%`,
           },
-          // ...(req.query.area && { areaId: req.query.area }),
+          ...(req.query.type && { type: req.query.type }),
+          ...(req.query.jenis && { jenis: req.query.jenis }),
         },
+        attributes: { exclude: ["UserUuid"] },
+        include: [
+          {
+            model: Dropspot,
+            as: "dropspot",
+            attributes: ["id", "areaId", "namaDropspot"],
+            where: {
+              ...(req.query.area && { areaId: req.query.area }),
+              ...(req.query.dropspot && { id: req.query.dropspot }),
+            },
+          },
+          {
+            model: Penumpang,
+            as: "penumpang",
+            attributes: ["id", "armadaId"],
+          },
+          {
+            model: User,
+            as: "user",
+            attributes: { exclude: ["password"] },
+          },
+        ],
         limit,
         offset,
       });
@@ -74,14 +104,40 @@ module.exports = {
         where: {
           id: req.params.id,
         },
-        include: {
-          model: Dropspot,
-          as: "dropspot",
-          include: {
-            model: Area,
-            as: "area",
+        include: [
+          {
+            model: Dropspot,
+            as: "dropspot",
+            include: {
+              model: Area,
+              as: "area",
+            },
           },
-        },
+          {
+            model: Penumpang,
+            as: "penumpang",
+            include: [
+              {
+              model: Santri,
+              as: "santri",
+              attributes: { exclude: ["raw"] },
+            },
+              {
+            model: Dropspot,
+            as: "dropspot",
+            include: {
+              model: Area,
+              as: "area",
+            },
+          },
+              ]
+          },
+          {
+            model: User,
+            as: "user",
+            attributes: { exclude: ["password"] },
+          },
+        ],
       });
       if (!data) {
         return res.status(404).json({

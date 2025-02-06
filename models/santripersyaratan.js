@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       SantriPersyaratan.belongsTo(models.Ketuntasan, { as: "ketuntasan" });
+      SantriPersyaratan.belongsTo(models.Santri, { as: "santri" });
     }
   }
   SantriPersyaratan.init(
