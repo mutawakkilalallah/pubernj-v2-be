@@ -8,11 +8,7 @@ services:
     image: mutawakkil/puber-api:v2.0.0
     ports:
       - "${PORT}:3000"
-    environment:
-      - DB_HOST=${DB_HOST}
-      - DB_USER=${DB_USER}
-      - DB_PWD=${DB_PWD}
-      - DB_NAME=${DB_NAME}
+    env_file: ".env"
     networks:
       - puber-network
     depends_on:
