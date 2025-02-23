@@ -19,7 +19,7 @@ async function syncSantri() {
   });
   try {
     const { data: santriPedatren } = await axios.get(
-      `${API_URL}/santri?limit=100`,
+      `${API_URL}/santri?disable_pagination=true`,
       config
     );
 
