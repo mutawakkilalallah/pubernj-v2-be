@@ -1,0 +1,74 @@
+version: "3"
+services:
+  puber-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: puber-api
+    image: mutawakkil/puber-api:v2.0.0
+    ports:
+      - "${PORT}:3000"
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PWD}
+      - DB_NAME=${DB_NAME}
+    networks:
+      - puber-network
+    depends_on:
+      puber-db:
+        condition: service_healthy
+    command: >
+      sh -c "npx sequelize db:migrate && npm start"
+
+  puber-db:
+    image: mysql:8.0
+    container_name: puber-db
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PWD}
+      - MYSQL_PASSWORD=${DB_PWD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+    volumes:
+      - puber-db-data:/var/lib/mysql
+    networks:
+      - puber-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "${DB_HOST}",
+          "-u",
+          "${DB_USER}",
+          "-p${DB_PWD}",
+        ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: puber-phpmyadmin
+    environment:
+      PMA_HOST: ${DB_HOST}
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 0
+      UPLOAD_LIMIT: 1024M
+    ports:
+      - "9001:80"
+    depends_on:
+      - puber-db
+    networks:
+      - puber-network
+
+volumes:
+  puber-db-data:
+
+networks:
+  puber-network:
+    driver: bridge

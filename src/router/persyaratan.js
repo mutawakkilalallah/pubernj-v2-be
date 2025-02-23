@@ -11,7 +11,7 @@ const uploadMlt = require("../../middleware/muter");
 
 const persyaratan = Router();
 
-persyaratan.post("/syncronize", generatePersyaratan);
+// persyaratan.post("/syncronize", generatePersyaratan);
 persyaratan.get("/", list);
 persyaratan.put("/tuntas/:uuid", tuntas);
 persyaratan.put("/tuntas-mobile/:uuid", tuntasMobile);

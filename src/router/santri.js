@@ -10,7 +10,7 @@ const {
 
 const santri = Router();
 
-santri.post("/syncronize", generateSantri);
+// santri.post("/syncronize", generateSantri);
 santri.get("/", list);
 santri.get("/domisili", getDomisili);
 santri.get("/:uuid", getByUuid);
