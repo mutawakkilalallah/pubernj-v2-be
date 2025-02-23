@@ -2,7 +2,7 @@ require("dotenv").config();
 const axios = require("axios");
 const mysql = require("mysql2/promise");
 
-const API_URL = "https://api-pedatren.nuruljadid.dev";
+const API_URL = "https://api-pedatren.nuruljadid.app";
 
 const config = {
   headers: {
