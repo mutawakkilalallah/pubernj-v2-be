@@ -11,7 +11,7 @@ services:
     environment:
       - DB_HOST=${DB_HOST}
       - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PWD}
+      - DB_PWD=${DB_PWD}
       - DB_NAME=${DB_NAME}
     networks:
       - puber-network
