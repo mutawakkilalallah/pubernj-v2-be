@@ -56,7 +56,7 @@ services:
       PMA_ARBITRARY: 0
       UPLOAD_LIMIT: 1024M
     ports:
-      - "9001:80"
+      - "9000:80"
     depends_on:
       - puber-db
     networks:
