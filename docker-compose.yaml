@@ -12,7 +12,8 @@ services:
     networks:
       - puber-network
     depends_on:
-      - puber-db
+      puber-db:
+        condition: service_healthy
     command: >
       sh -c "npx sequelize db:migrate && npm start"
 
