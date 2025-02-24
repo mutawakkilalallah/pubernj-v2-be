@@ -7,7 +7,7 @@ services:
     container_name: puber-api
     image: mutawakkil/puber-api:v2.0.0
     ports:
-      - "${PORT}:3000"
+      - "3000:${PORT}"
     env_file: ".env"
     networks:
       - puber-network
@@ -20,8 +20,6 @@ services:
   puber-db:
     image: mysql:8.0
     container_name: puber-db
-    ports:
-      - "3306:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=${DB_PWD}
       - MYSQL_PASSWORD=${DB_PWD}
