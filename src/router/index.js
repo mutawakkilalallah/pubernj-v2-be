@@ -16,6 +16,7 @@ const persyaratanRouter = require("./persyaratan");
 const statsRouter = require("./stats");
 const publicRouter = require("./public");
 const userRouter = require("./user");
+const filterRouter = require("./filter");
 
 const auth = require("../../middleware/authentication");
 
@@ -38,5 +39,6 @@ router.use("/persyaratan", auth, persyaratanRouter);
 router.use("/statistik", statsRouter);
 router.use("/public", publicRouter);
 router.use("/user", auth, userRouter);
+router.use("/filter", auth, filterRouter);
 
 module.exports = router;
