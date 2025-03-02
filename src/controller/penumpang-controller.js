@@ -58,6 +58,12 @@ module.exports = {
               ...(req.user.role === "wilayah" && {
                 alias_wilayah: req.user.alias_wilayah,
               }),
+              ...(req.query.wilayah && { alias_wilayah: req.query.wilayah }),
+              ...(req.query.blok && { id_blok: req.query.blok }),
+              ...(req.query.negara && { negara: req.query.negara }),
+              ...(req.query.provinsi && { provinsi: req.query.provinsi }),
+              ...(req.query.kabupaten && { kabupaten: req.query.kabupaten }),
+              ...(req.query.kecamatan && { kecamatan: req.query.kecamatan }),
             },
           },
           {
