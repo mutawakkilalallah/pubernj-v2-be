@@ -83,6 +83,9 @@ module.exports = {
           alias_wilayah: {
             [Op.ne]: null,
           },
+          ...(req.user.role === "wilayah" && {
+            alias_wilayah: req.user.alias_wilayah,
+          }),
         },
         group: ["alias_wilayah", "wilayah"],
         order: [
@@ -115,6 +118,7 @@ module.exports = {
             [Op.ne]: null,
           },
           alias_wilayah: req.query.wilayah,
+          ...(req.user.role === "daerah" && { id_blok: req.user.id_blok }),
         },
         group: ["id_blok", "blok"],
         order: [
