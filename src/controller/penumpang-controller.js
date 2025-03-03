@@ -651,10 +651,10 @@ module.exports = {
         doc.text(`16 Ramadhan s.d 10 Syawal 1446 H`, 8.25, 8.8, {
           align: "center",
         });
-        doc.text(`17 Maret s.d 10 April 2025 M (Santri Putra)`, 8.25, 8.4, {
+        doc.text(`17 Maret s.d 10 April 2025 M (Santri Putra)`, 8.25, 9.2, {
           align: "center",
         });
-        doc.text(`17 Ramadhan s.d 11 Syawal 1446 H`, 8.25, 8.8, {
+        doc.text(`17 Ramadhan s.d 11 Syawal 1446 H`, 8.25, 9.6, {
           align: "center",
         });
 
@@ -700,10 +700,10 @@ module.exports = {
             minute: "2-digit", // menampilkan menit
             second: "2-digit", // menampilkan detik
           })}`,
-          12.1,
+          10.5,
           19.6
         );
-        doc.text(`Petugas: ${req.user.nama_lengkap}`, 12.1, 20);
+        doc.text(`Petugas: ${req.user.nama_lengkap}`, 10.5, 20);
       });
       // Generate PDF sebagai buffer
       const pdfBuffer = Buffer.from(doc.output("arraybuffer"));
@@ -774,12 +774,12 @@ module.exports = {
       );
       doc.text(`memberikan izin libur kepada :`, 1, 5.3);
 
-      doc.text(`NIUP : ${item.niup}`, 1, 6);
-      doc.text(`Nama : ${item.nama_lengkap}`, 1, 6.4);
-      doc.text(`Wilayah : ${item.wilayah}`, 1, 6.8);
-      doc.text(`Daerah : ${item.blok}`, 1, 7.2);
+      doc.text(`NIUP : ${data.niup}`, 1, 6);
+      doc.text(`Nama : ${data.nama_lengkap}`, 1, 6.4);
+      doc.text(`Wilayah : ${data.wilayah}`, 1, 6.8);
+      doc.text(`Daerah : ${data.blok}`, 1, 7.2);
       doc.text(
-        `Alamat : ${item.kecamatan}, ${item.provinsi}, ${item.negara}`,
+        `Alamat : ${data.kecamatan}, ${data.provinsi}, ${data.negara}`,
         1,
         7.6
       );
@@ -790,10 +790,10 @@ module.exports = {
       doc.text(`16 Ramadhan s.d 10 Syawal 1446 H`, 8.25, 8.8, {
         align: "center",
       });
-      doc.text(`17 Maret s.d 10 April 2025 M (Santri Putra)`, 8.25, 8.4, {
+      doc.text(`17 Maret s.d 10 April 2025 M (Santri Putra)`, 8.25, 9.2, {
         align: "center",
       });
-      doc.text(`17 Ramadhan s.d 11 Syawal 1446 H`, 8.25, 8.8, {
+      doc.text(`17 Ramadhan s.d 11 Syawal 1446 H`, 8.25, 9.6, {
         align: "center",
       });
 
@@ -839,10 +839,10 @@ module.exports = {
           minute: "2-digit", // menampilkan menit
           second: "2-digit", // menampilkan detik
         })}`,
-        12.1,
+        10.5,
         19.6
       );
-      doc.text(`Petugas: ${req.user.nama_lengkap}`, 12.1, 20);
+      doc.text(`Petugas: ${req.user.nama_lengkap}`, 10.5, 20);
 
       // Generate PDF sebagai buffer
       const pdfBuffer = Buffer.from(doc.output("arraybuffer"));
