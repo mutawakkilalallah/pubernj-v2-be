@@ -118,19 +118,19 @@ module.exports = {
             as: "penumpang",
             include: [
               {
-              model: Santri,
-              as: "santri",
-              attributes: { exclude: ["raw"] },
-            },
+                model: Santri,
+                as: "santri",
+                attributes: { exclude: ["raw"] },
+              },
               {
-            model: Dropspot,
-            as: "dropspot",
-            include: {
-              model: Area,
-              as: "area",
-            },
-          },
-              ]
+                model: Dropspot,
+                as: "dropspot",
+                include: {
+                  model: Area,
+                  as: "area",
+                },
+              },
+            ],
           },
           {
             model: User,
@@ -196,6 +196,7 @@ module.exports = {
         jenis: value.jenis,
         hargaSewa: value.hargaSewa,
         dropspotId: value.dropspotId,
+        jadwalKeberangkatan: value.jadwalKeberangkatan,
       });
 
       res.status(201).json({

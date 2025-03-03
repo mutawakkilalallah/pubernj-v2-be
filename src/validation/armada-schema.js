@@ -6,6 +6,7 @@ const armadaSchema = {
     jenis: Joi.required(),
     hargaSewa: Joi.optional(),
     dropspotId: Joi.required(),
+    jadwalKeberangkatan: Joi.required(),
   }),
   up: Joi.object({
     namaArmada: Joi.string().required(),
@@ -13,6 +14,7 @@ const armadaSchema = {
     jenis: Joi.required(),
     hargaSewa: Joi.optional(),
     dropspotId: Joi.required(),
+    jadwalKeberangkatan: Joi.required(),
   }),
 };
 
