@@ -615,16 +615,21 @@ module.exports = {
 
         doc.setFont("Helvetica");
         doc.setFontSize(8);
-        doc.text("SURAT IZIN LIBUR MAULID 1446 H", 8.25, 3.8, {
-          align: "center",
-        });
+        doc.text(
+          "SURAT IZIN LIBUR RAMADHAN DAN HARI RAYA IDUL FITRI 1446 H",
+          8.25,
+          3.8,
+          {
+            align: "center",
+          }
+        );
 
-        doc.text(`NOMOR : NJ-B/0457/A.IX/09.2024`, 8.25, 4.2, {
+        doc.text(`NOMOR : NJ-B/120/A.IX/03.2025`, 8.25, 4.2, {
           align: "center",
         });
 
         doc.text(
-          `Yang bertanda tangan dibawah ini, Kepala Pondok Pesantren Nurul Jadid Paiton Probolinggo Jawa Timur `,
+          `Yang bertanda tangan dibawah ini, Kepala Pondok Pesantren Nurul Jadid Karanganyar Paiton Probolinggo Jawa Timur `,
           1,
           4.8
         );
@@ -640,22 +645,16 @@ module.exports = {
           7.6
         );
 
-        doc.text(
-          `Santri putri tanggal 8 Rabiul Awal 1446 H/12 September 2024 M`,
-          8.25,
-          8.4,
-          { align: "center" }
-        );
-        doc.text(`s.d 17 Rabiul Awal 1446 H/21 September 2024 M.`, 8.25, 8.8, {
+        doc.text(`16 Maret s.d 9 April 2025 M (Santri Putri)`, 8.25, 8.4, {
           align: "center",
         });
-        doc.text(
-          `Santri putra tanggal 9 Rabiul Awal 1446 H/13 September 2024 M`,
-          8.25,
-          9.2,
-          { align: "center" }
-        );
-        doc.text(`s.d 18 Rabiul Awal 1446 H/22 September 2024 M.`, 8.25, 9.6, {
+        doc.text(`16 Ramadhan s.d 10 Syawal 1446 H`, 8.25, 8.8, {
+          align: "center",
+        });
+        doc.text(`17 Maret s.d 10 April 2025 M (Santri Putra)`, 8.25, 8.4, {
+          align: "center",
+        });
+        doc.text(`17 Ramadhan s.d 11 Syawal 1446 H`, 8.25, 8.8, {
           align: "center",
         });
 
@@ -665,8 +664,8 @@ module.exports = {
           10.1
         );
         doc.text(`Paiton,`, 1, 10.7);
-        doc.text(`06 Rabiul Awal 1446 H`, 2.3, 10.7);
-        doc.text(`09 September 2024 M`, 2.3, 11.1);
+        doc.text(`03 Ramadhan 1446 H`, 2.3, 10.7);
+        doc.text(`03 Maret 2025 M`, 2.3, 11.1);
 
         doc.addImage(qrBase64, "PNG", 1, 11.5, 2.5, 2.5);
         doc.text("KH. ABD. HAMID WAHID, M.Ag.", 1, 14.7);
@@ -685,12 +684,25 @@ module.exports = {
           17.4
         );
         doc.text(`a. Informasi Umum : 0856-9736-7832`, 1.2, 17.7);
-        doc.text(`b. Putra : 0896-5479-0122`, 1.2, 18);
-        doc.text(`c. Putri : 0822-3105-8592`, 1.2, 18.3);
+        doc.text(`b. Putra : 0822-3423-4905`, 1.2, 18);
+        doc.text(`c. Putri : 0821-4520-0597`, 1.2, 18.3);
 
         // doc.addImage(qrPuber, "PNG", 12.1, 17, 2, 2);
 
-        doc.text(`Tanggal Cetak: ${new Date().toLocaleString()}`, 12.1, 19.6);
+        doc.text(
+          `Tanggal Cetak: ${new Date().toLocaleString("id-iD", {
+            timeZone: "Asia/Jakarta",
+            weekday: "long", // opsional: menampilkan hari
+            year: "numeric", // opsional: menampilkan tahun
+            month: "long", // opsional: menampilkan bulan
+            day: "numeric", // opsional: menampilkan tanggal
+            hour: "2-digit", // menampilkan jam
+            minute: "2-digit", // menampilkan menit
+            second: "2-digit", // menampilkan detik
+          })}`,
+          12.1,
+          19.6
+        );
         doc.text(`Petugas: ${req.user.nama_lengkap}`, 12.1, 20);
       });
       // Generate PDF sebagai buffer
@@ -742,47 +754,46 @@ module.exports = {
 
       doc.setFont("Helvetica");
       doc.setFontSize(8);
-      doc.text("SURAT IZIN LIBUR MAULID 1446 H", 8.25, 3.8, {
-        align: "center",
-      });
+      doc.text(
+        "SURAT IZIN LIBUR RAMADHAN DAN HARI RAYA IDUL FITRI 1446 H",
+        8.25,
+        3.8,
+        {
+          align: "center",
+        }
+      );
 
-      doc.text(`NOMOR : NJ-B/0457/A.IX/09.2024`, 8.25, 4.2, {
+      doc.text(`NOMOR : NJ-B/120/A.IX/03.2025`, 8.25, 4.2, {
         align: "center",
       });
 
       doc.text(
-        `Yang bertanda tangan dibawah ini, Kepala Pondok Pesantren Nurul Jadid Paiton Probolinggo Jawa Timur `,
+        `Yang bertanda tangan dibawah ini, Kepala Pondok Pesantren Nurul Jadid Karanganyar Paiton Probolinggo Jawa Timur `,
         1,
         4.8
       );
       doc.text(`memberikan izin libur kepada :`, 1, 5.3);
 
-      doc.text(`NIUP : ${data.niup}`, 1, 6);
-      doc.text(`Nama : ${data.nama_lengkap}`, 1, 6.4);
-      doc.text(`Wilayah : ${data.wilayah}`, 1, 6.8);
-      doc.text(`Daerah : ${data.blok}`, 1, 7.2);
+      doc.text(`NIUP : ${item.niup}`, 1, 6);
+      doc.text(`Nama : ${item.nama_lengkap}`, 1, 6.4);
+      doc.text(`Wilayah : ${item.wilayah}`, 1, 6.8);
+      doc.text(`Daerah : ${item.blok}`, 1, 7.2);
       doc.text(
-        `Alamat : ${data.kecamatan}, ${data.provinsi}, ${data.negara}`,
+        `Alamat : ${item.kecamatan}, ${item.provinsi}, ${item.negara}`,
         1,
         7.6
       );
 
-      doc.text(
-        `Santri putri tanggal 8 Rabiul Awal 1446 H/12 September 2024 M`,
-        8.25,
-        8.4,
-        { align: "center" }
-      );
-      doc.text(`s.d 17 Rabiul Awal 1446 H/21 September 2024 M.`, 8.25, 8.8, {
+      doc.text(`16 Maret s.d 9 April 2025 M (Santri Putri)`, 8.25, 8.4, {
         align: "center",
       });
-      doc.text(
-        `Santri putra tanggal 9 Rabiul Awal 1446 H/13 September 2024 M`,
-        8.25,
-        9.2,
-        { align: "center" }
-      );
-      doc.text(`s.d 18 Rabiul Awal 1446 H/22 September 2024 M.`, 8.25, 9.6, {
+      doc.text(`16 Ramadhan s.d 10 Syawal 1446 H`, 8.25, 8.8, {
+        align: "center",
+      });
+      doc.text(`17 Maret s.d 10 April 2025 M (Santri Putra)`, 8.25, 8.4, {
+        align: "center",
+      });
+      doc.text(`17 Ramadhan s.d 11 Syawal 1446 H`, 8.25, 8.8, {
         align: "center",
       });
 
@@ -792,8 +803,8 @@ module.exports = {
         10.1
       );
       doc.text(`Paiton,`, 1, 10.7);
-      doc.text(`06 Rabiul Awal 1446 H`, 2.3, 10.7);
-      doc.text(`09 September 2024 M`, 2.3, 11.1);
+      doc.text(`03 Ramadhan 1446 H`, 2.3, 10.7);
+      doc.text(`03 Maret 2025 M`, 2.3, 11.1);
 
       doc.addImage(qrBase64, "PNG", 1, 11.5, 2.5, 2.5);
       doc.text("KH. ABD. HAMID WAHID, M.Ag.", 1, 14.7);
@@ -812,12 +823,25 @@ module.exports = {
         17.4
       );
       doc.text(`a. Informasi Umum : 0856-9736-7832`, 1.2, 17.7);
-      doc.text(`b. Putra : 0896-5479-0122`, 1.2, 18);
-      doc.text(`c. Putri : 0822-3105-8592`, 1.2, 18.3);
+      doc.text(`b. Putra : 0822-3423-4905`, 1.2, 18);
+      doc.text(`c. Putri : 0821-4520-0597`, 1.2, 18.3);
 
       // doc.addImage(qrPuber, "PNG", 12.1, 17, 2, 2);
 
-      doc.text(`Tanggal Cetak: ${new Date().toLocaleString()}`, 12.1, 19.6);
+      doc.text(
+        `Tanggal Cetak: ${new Date().toLocaleString("id-iD", {
+          timeZone: "Asia/Jakarta",
+          weekday: "long", // opsional: menampilkan hari
+          year: "numeric", // opsional: menampilkan tahun
+          month: "long", // opsional: menampilkan bulan
+          day: "numeric", // opsional: menampilkan tanggal
+          hour: "2-digit", // menampilkan jam
+          minute: "2-digit", // menampilkan menit
+          second: "2-digit", // menampilkan detik
+        })}`,
+        12.1,
+        19.6
+      );
       doc.text(`Petugas: ${req.user.nama_lengkap}`, 12.1, 20);
 
       // Generate PDF sebagai buffer
