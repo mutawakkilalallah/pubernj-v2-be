@@ -42,7 +42,7 @@ async function syncSantri() {
       await db.beginTransaction();
       try {
         await db.query(
-          "DELETE t FROM tujuans t JOIN penumpang p ON t.penumpangId = p.id WHERE p.santriUuid IN (?)",
+          "DELETE t FROM tujuans t JOIN penumpangs p ON t.penumpangId = p.id WHERE p.santriUuid IN (?)",
           [santriToDelete]
         );
         await db.query(
