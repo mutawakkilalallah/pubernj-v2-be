@@ -640,7 +640,7 @@ module.exports = {
         doc.text(`Wilayah : ${item.wilayah}`, 1, 6.8);
         doc.text(`Daerah : ${item.blok}`, 1, 7.2);
         doc.text(
-          `Alamat : ${item.kecamatan}, ${item.provinsi}, ${item.negara}`,
+          `Alamat : ${item.kecamatan}, ${item.kabupaten}, ${item.provinsi}, ${item.negara}`,
           1,
           7.6
         );
@@ -779,7 +779,7 @@ module.exports = {
       doc.text(`Wilayah : ${data.wilayah}`, 1, 6.8);
       doc.text(`Daerah : ${data.blok}`, 1, 7.2);
       doc.text(
-        `Alamat : ${data.kecamatan}, ${data.provinsi}, ${data.negara}`,
+        `Alamat : ${data.kecamatan}, ${data.kabupaten}, ${data.provinsi}, ${data.negara}`,
         1,
         7.6
       );

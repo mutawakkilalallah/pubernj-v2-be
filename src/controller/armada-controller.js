@@ -131,6 +131,7 @@ module.exports = {
                 },
               },
             ],
+            order: [["dropspotId", "ASC"]],
           },
           {
             model: User,
