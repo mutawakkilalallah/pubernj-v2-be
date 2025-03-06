@@ -160,6 +160,8 @@ module.exports = {
             attributes: ["id", "statusKepulangan"],
             where: {
               statusKepulangan: "Y",
+              ...(req.query.dropspot && { id: req.query.dropspot }),
+              ...(req.query.area && { areaId: req.query.area }),
             },
           },
           {
