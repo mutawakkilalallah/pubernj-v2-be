@@ -160,8 +160,24 @@ module.exports = {
             attributes: ["id", "statusKepulangan"],
             where: {
               statusKepulangan: "Y",
+            },
+          },
+          {
+            model: Dropspot,
+            as: "dropspot",
+            attributes: {
+              exclude: ["cakupan", "grup", "harga", "jadwalKeberangkatan"],
+            },
+            where: {
               ...(req.query.dropspot && { id: req.query.dropspot }),
               ...(req.query.area && { areaId: req.query.area }),
+            },
+            include: {
+              model: Area,
+              as: "area",
+              attributes: {
+                exclude: ["picInt", "hpPicInt", "picExt", "hpPicExt"],
+              },
             },
           },
           {
