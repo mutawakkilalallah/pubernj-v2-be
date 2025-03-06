@@ -147,6 +147,10 @@ module.exports = {
           }),
           ...(req.query.wilayah && { alias_wilayah: req.query.wilayah }),
           ...(req.query.blok && { id_blok: req.query.blok }),
+          ...(req.query.negara && { negara: req.query.negara }),
+          ...(req.query.provinsi && { provinsi: req.query.provinsi }),
+          ...(req.query.kabupaten && { kabupaten: req.query.kabupaten }),
+          ...(req.query.kecamatan && { kecamatan: req.query.kecamatan }),
         },
         include: [
           {
@@ -157,6 +161,42 @@ module.exports = {
             where: {
               statusKepulangan: "Y",
             },
+          },
+          {
+            model: SantriPersyaratan,
+            as: "kamtib",
+            where: {
+              ketuntasanId: 1,
+              ...(req.query.kamtib && { status: req.query.kamtib }),
+            },
+            required: true,
+          },
+          {
+            model: SantriPersyaratan,
+            as: "fa",
+            where: {
+              ketuntasanId: 2,
+              ...(req.query.fa && { status: req.query.fa }),
+            },
+            required: true,
+          },
+          {
+            model: SantriPersyaratan,
+            as: "bps",
+            where: {
+              ketuntasanId: 3,
+              ...(req.query.bps && { status: req.query.bps }),
+            },
+            required: true,
+          },
+          {
+            model: SantriPersyaratan,
+            as: "kosmara",
+            where: {
+              ketuntasanId: 4,
+              ...(req.query.kosmara && { status: req.query.kosmara }),
+            },
+            required: true,
           },
         ],
         limit,

@@ -16,6 +16,22 @@ module.exports = (sequelize, DataTypes) => {
         as: "persyaratan",
         foreignKey: "santriUuid",
       });
+      Santri.hasMany(models.SantriPersyaratan, {
+        as: "kamtib",
+        foreignKey: "santriUuid",
+      });
+      Santri.hasMany(models.SantriPersyaratan, {
+        as: "fa",
+        foreignKey: "santriUuid",
+      });
+      Santri.hasMany(models.SantriPersyaratan, {
+        as: "bps",
+        foreignKey: "santriUuid",
+      });
+      Santri.hasMany(models.SantriPersyaratan, {
+        as: "kosmara",
+        foreignKey: "santriUuid",
+      });
     }
   }
   Santri.init(
