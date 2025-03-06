@@ -5,6 +5,7 @@ const {
   Ketuntasan,
   SantriPersyaratan,
   sequelize,
+  Dropspot,
 } = require("../../models");
 const axios = require("axios");
 const persyaratanSchema = require("../validation/persyaratan-schema");
