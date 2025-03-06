@@ -5,6 +5,7 @@ const {
   Ketuntasan,
   SantriPersyaratan,
   sequelize,
+  Area,
   Dropspot,
 } = require("../../models");
 const axios = require("axios");
@@ -158,26 +159,32 @@ module.exports = {
             model: Penumpang,
             required: true,
             as: "penumpang",
-            attributes: ["id", "statusKepulangan"],
+            attributes: ["id", "statusKepulangan", "dropspotId"],
             where: {
               statusKepulangan: "Y",
             },
-          },
-          {
-            model: Dropspot,
-            as: "dropspot",
-            attributes: {
-              exclude: ["cakupan", "grup", "harga", "jadwalKeberangkatan"],
-            },
-            where: {
-              ...(req.query.dropspot && { id: req.query.dropspot }),
-              ...(req.query.area && { areaId: req.query.area }),
-            },
             include: {
-              model: Area,
-              as: "area",
+              model: Dropspot,
+              as: "dropspot",
               attributes: {
-                exclude: ["picInt", "hpPicInt", "picExt", "hpPicExt"],
+                exclude: [
+                  "cakupan",
+                  "grup",
+                  "harga",
+                  "jadwalKeberangkatan",
+                  "areaId",
+                ],
+              },
+              where: {
+                ...(req.query.dropspot && { id: req.query.dropspot }),
+                ...(req.query.area && { areaId: req.query.area }),
+              },
+              include: {
+                model: Area,
+                as: "area",
+                attributes: {
+                  exclude: ["picInt", "hpPicInt", "picExt", "hpPicExt"],
+                },
               },
             },
           },
