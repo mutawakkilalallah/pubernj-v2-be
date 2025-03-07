@@ -304,10 +304,8 @@ module.exports = {
           error: error.message,
         });
       }
-      if (
-        req.user.role != "wilayah" &&
-        req.user.jenis_kelamin != "L"
-      ) {
+      const allowed = ["sysadmin", "admin", "wilayah"];
+      if (!allowed.includes(req.user.role) && req.user.jenis_kelamin != "L") {
         return res.status(403).json({
           status: 403,
           message: "UNAUTHORIZED",
@@ -378,10 +376,8 @@ module.exports = {
         });
       }
 
-      if (
-        req.user.role != "wilayah" &&
-        req.user.jenis_kelamin != "L"
-      ) {
+      const allowed = ["sysadmin", "admin", "wilayah"];
+      if (!allowed.includes(req.user.role) && req.user.jenis_kelamin != "L") {
         return res.status(403).json({
           status: 403,
           message: "UNAUTHORIZED",
