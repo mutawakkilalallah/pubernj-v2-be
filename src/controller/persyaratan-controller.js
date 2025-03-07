@@ -304,6 +304,16 @@ module.exports = {
           error: error.message,
         });
       }
+      if (
+        req.user.role != "wilayah" &&
+        req.user.jenis_kelamin != "L"
+      ) {
+        return res.status(403).json({
+          status: 403,
+          message: "UNAUTHORIZED",
+          error: "Anda tidak memiliki akses",
+        });
+      }
       const promises = value.data.map(async (item) => {
         await SantriPersyaratan.update(
           { status: item.status },
@@ -370,7 +380,6 @@ module.exports = {
 
       if (
         req.user.role != "wilayah" &&
-        value.type == "KAMTIB" &&
         req.user.jenis_kelamin != "L"
       ) {
         return res.status(403).json({
