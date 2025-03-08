@@ -33,9 +33,9 @@ module.exports = {
           include: [
             [
               sequelize.literal(`(
-                SELECT areaId 
-                FROM dropspots 
-                WHERE dropspots.id = dropspotId 
+                SELECT areaId
+                FROM dropspots
+                WHERE dropspots.id = dropspotId
                 LIMIT 1
               )`),
               "idarea",
@@ -51,7 +51,7 @@ module.exports = {
               ...(req.query.area && { areaId: req.query.area }),
               ...(req.query.dropspot && { id: req.query.dropspot }),
             },
-            required: false,
+            // required: false,
           },
           {
             model: Penumpang,
@@ -70,7 +70,7 @@ module.exports = {
           ["jadwalKeberangkatan", "ASC"],
           [sequelize.literal("idarea"), "ASC"],
         ],
-        // distinct: true,
+        distinct: true,
       });
       return res
         .status(200)
@@ -83,7 +83,7 @@ module.exports = {
         .json({
           status: 200,
           message: "OK",
-          data: data.rows,
+          data: data,
         });
     } catch (err) {
       return res.status(500).json({
