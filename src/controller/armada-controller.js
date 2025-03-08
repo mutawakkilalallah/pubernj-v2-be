@@ -30,6 +30,17 @@ module.exports = {
         },
         attributes: {
           exclude: ["UserUuid"],
+          include: [
+            [
+              sequelize.literal(`(
+                SELECT areaId 
+                FROM dropspots 
+                WHERE dropspots.id = dropspotId 
+                LIMIT 1
+              )`),
+              "idarea",
+            ],
+          ],
         },
         include: [
           {
@@ -55,8 +66,11 @@ module.exports = {
         ],
         limit,
         offset,
-        order: [["jadwalKeberangkatan", "ASC"]],
-        distinct: true,
+        order: [
+          ["jadwalKeberangkatan", "ASC"],
+          [sequelize.literal("idarea"), "ASC"],
+        ],
+        // distinct: true,
       });
       return res
         .status(200)
