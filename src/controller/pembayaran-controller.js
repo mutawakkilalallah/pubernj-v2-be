@@ -5,7 +5,7 @@ const {
   // Tujuan,
   Dropspot,
   Area,
-  // sequelize,
+  sequelize,
 } = require("../../models");
 // const penumpangSchema = require("../validation/penumpang-schema");
 const ExcelJS = require("exceljs");
@@ -13,6 +13,29 @@ const { response } = require("express");
 
 module.exports = {
   // list all data
+  rekap: async (req, res) => {
+    try {
+      const result = await sequelize.query(`SELECT 
+    (SELECT SUM(d.harga) FROM penumpangs p JOIN dropspots d ON p.dropspotId = d.id) AS total_harga_penumpang,
+    (SELECT SUM(p.totalBayar) FROM penumpangs p) AS total_bayar_penumpang,
+    (SELECT SUM(a.hargaSewa) FROM armadas a) AS total_sewa_armada,
+    ((SELECT SUM(d.harga) FROM penumpangs p JOIN dropspots d ON p.dropspotId = d.id) 
+        - (SELECT SUM(a.hargaSewa) FROM armadas a)) AS estimasi_laba,
+    ((SELECT SUM(p.totalBayar) FROM penumpangs p) 
+        - (SELECT SUM(a.hargaSewa) FROM armadas a)) AS laba_sementara;`);
+      return res.status(200).json({
+        status: 200,
+        message: "OK",
+        data: result[0],
+      });
+    } catch (err) {
+      return res.status(500).json({
+        status: 500,
+        message: "INTERNAL SERVER ERROR",
+        error: err.message,
+      });
+    }
+  },
   list: async (req, res) => {
     try {
       // define params for filter and pagination
@@ -85,6 +108,15 @@ module.exports = {
         ],
         limit,
         offset,
+        order: [
+          [
+            sequelize.literal(
+              `CASE WHEN santri.niup = '11520802117' THEN 0 ELSE 1 END`
+            ),
+            "ASC",
+          ],
+          ["updatedAt", "DESC"],
+        ],
       });
       return res
         .status(200)

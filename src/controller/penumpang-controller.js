@@ -98,7 +98,7 @@ module.exports = {
         order: [
           [
             sequelize.literal(
-              `CASE WHEN santri.niup = '11420204139' THEN 0 ELSE 1 END`
+              `CASE WHEN santri.niup = '11520802117' THEN 0 ELSE 1 END`
             ),
             "ASC",
           ],

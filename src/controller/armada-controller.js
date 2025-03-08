@@ -6,6 +6,7 @@ const {
   Penumpang,
   Santri,
   User,
+  sequelize,
 } = require("../../models");
 const armadaSchema = require("../validation/armada-schema");
 
@@ -19,6 +20,18 @@ module.exports = {
       const limit = parseInt(req.query.limit) || 25;
       const offset = 0 + (page - 1) * limit;
       // get data from database
+      const whereClause = {
+        namaArmada: {
+          [Op.like]: `%${search}%`,
+        },
+        ...(req.query.type && { type: req.query.type }),
+        ...(req.query.jenis && { jenis: req.query.jenis }),
+      };
+
+      const dropspotWhereClause = {
+        ...(req.query.area && { areaId: req.query.area }),
+        ...(req.query.dropspot && { id: req.query.dropspot }),
+      };
       const data = await Armada.findAndCountAll({
         where: {
           namaArmada: {
@@ -27,16 +40,30 @@ module.exports = {
           ...(req.query.type && { type: req.query.type }),
           ...(req.query.jenis && { jenis: req.query.jenis }),
         },
-        attributes: { exclude: ["UserUuid"] },
+        attributes: {
+          exclude: ["UserUuid"],
+          include: [
+            [
+              sequelize.literal(`(
+                SELECT areaId 
+                FROM dropspots 
+                WHERE dropspots.id = dropspotId 
+                LIMIT 1
+              )`),
+              "idarea",
+            ],
+          ],
+        },
         include: [
           {
             model: Dropspot,
             as: "dropspot",
-            attributes: ["id", "areaId", "namaDropspot"],
+            attributes: ["id", "areaId", "namaDropspot", "harga"],
             where: {
               ...(req.query.area && { areaId: req.query.area }),
               ...(req.query.dropspot && { id: req.query.dropspot }),
             },
+            required: false,
           },
           {
             model: Penumpang,
@@ -51,6 +78,11 @@ module.exports = {
         ],
         limit,
         offset,
+        order: [
+          ["jadwalKeberangkatan", "ASC"],
+          [sequelize.literal("idarea"), "ASC"],
+        ],
+        distinct: true,
       });
       return res
         .status(200)
