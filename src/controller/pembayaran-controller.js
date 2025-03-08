@@ -15,14 +15,35 @@ module.exports = {
   // list all data
   rekap: async (req, res) => {
     try {
-      const result = await sequelize.query(`SELECT 
-    (SELECT SUM(d.harga) FROM penumpangs p JOIN dropspots d ON p.dropspotId = d.id) AS total_harga_penumpang,
-    (SELECT SUM(p.totalBayar) FROM penumpangs p) AS total_bayar_penumpang,
-    (SELECT SUM(a.hargaSewa) FROM armadas a) AS total_sewa_armada,
-    ((SELECT SUM(d.harga) FROM penumpangs p JOIN dropspots d ON p.dropspotId = d.id) 
-        - (SELECT SUM(a.hargaSewa) FROM armadas a)) AS estimasi_laba,
-    ((SELECT SUM(p.totalBayar) FROM penumpangs p) 
-        - (SELECT SUM(a.hargaSewa) FROM armadas a)) AS laba_sementara;`);
+      const result = await sequelize.query(`WITH harga_penumpang AS (
+    SELECT 
+        COALESCE(SUM(d.harga), 0) AS total_harga_penumpang,
+        COALESCE(ROUND(SUM(CASE WHEN d.areaId IN (59, 60, 61, 67, 68, 69) THEN d.harga ELSE 0 END) / 2), 0) AS milik_p4nj
+    FROM penumpangs p
+    JOIN dropspots d ON p.dropspotId = d.id
+), 
+total_sewa AS (
+    SELECT 
+        COALESCE(SUM(a.hargaSewa), 0) AS total_sewa_armada
+    FROM armadas a
+), 
+total_bayar AS (
+    SELECT 
+        COALESCE(SUM(p.totalBayar), 0) AS total_bayar_penumpang
+    FROM penumpangs p
+)
+
+SELECT 
+    hp.total_harga_penumpang,
+    tb.total_bayar_penumpang,
+    ts.total_sewa_armada,
+    (hp.total_harga_penumpang - ts.total_sewa_armada - hp.milik_p4nj) AS estimasi_laba,
+    (tb.total_bayar_penumpang - ts.total_sewa_armada - hp.milik_p4nj) AS laba_sementara,
+    hp.milik_p4nj
+FROM harga_penumpang hp
+JOIN total_sewa ts ON 1=1
+JOIN total_bayar tb ON 1=1;
+`);
       return res.status(200).json({
         status: 200,
         message: "OK",
