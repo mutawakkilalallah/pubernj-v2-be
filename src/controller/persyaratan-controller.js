@@ -159,7 +159,12 @@ module.exports = {
             model: Penumpang,
             required: true,
             as: "penumpang",
-            attributes: ["id", "statusKepulangan", "dropspotId"],
+            attributes: [
+              "id",
+              "statusKepulangan",
+              "dropspotId",
+              "statusPembayaran",
+            ],
             where: {
               statusKepulangan: "Y",
             },
