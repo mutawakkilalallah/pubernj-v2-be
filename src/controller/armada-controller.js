@@ -20,18 +20,6 @@ module.exports = {
       const limit = parseInt(req.query.limit) || 25;
       const offset = 0 + (page - 1) * limit;
       // get data from database
-      const whereClause = {
-        namaArmada: {
-          [Op.like]: `%${search}%`,
-        },
-        ...(req.query.type && { type: req.query.type }),
-        ...(req.query.jenis && { jenis: req.query.jenis }),
-      };
-
-      const dropspotWhereClause = {
-        ...(req.query.area && { areaId: req.query.area }),
-        ...(req.query.dropspot && { id: req.query.dropspot }),
-      };
       const data = await Armada.findAndCountAll({
         where: {
           namaArmada: {
@@ -42,17 +30,6 @@ module.exports = {
         },
         attributes: {
           exclude: ["UserUuid"],
-          include: [
-            [
-              sequelize.literal(`(
-                SELECT areaId 
-                FROM dropspots 
-                WHERE dropspots.id = dropspotId 
-                LIMIT 1
-              )`),
-              "idarea",
-            ],
-          ],
         },
         include: [
           {
@@ -78,10 +55,7 @@ module.exports = {
         ],
         limit,
         offset,
-        order: [
-          ["jadwalKeberangkatan", "ASC"],
-          [sequelize.literal("idarea"), "ASC"],
-        ],
+        order: [["jadwalKeberangkatan", "ASC"]],
         distinct: true,
       });
       return res
