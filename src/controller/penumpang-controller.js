@@ -587,10 +587,24 @@ module.exports = {
           as: "penumpang",
           where: {
             statusKepulangan: "Y",
+            ...(req.query.dropspot && {
+              dropspotId: req.query.dropspot,
+            }),
+            ...(req.query.armada && {
+              armadaId: req.query.armada,
+            }),
+          },
+          include: {
+            model: Dropspot,
+            as: "dropspot",
+            where: {
+              ...(req.query.area && {
+                areaId: req.query.area,
+              }),
+            },
           },
         },
       });
-
       const pageWidth = 16.5; // Lebar dalam cm
       const pageHeight = 21; // Tinggi dalam cm
 
