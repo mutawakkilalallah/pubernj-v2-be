@@ -18,7 +18,7 @@ module.exports = {
       const result = await sequelize.query(`WITH harga_penumpang AS (
     SELECT 
         COALESCE(SUM(d.harga), 0) AS total_harga_penumpang,
-        COALESCE(ROUND(SUM(CASE WHEN d.areaId IN (59, 60, 61, 67, 68, 69) THEN d.harga ELSE 0 END) / 2), 0) AS milik_p4nj
+        COALESCE(ROUND(SUM(CASE WHEN d.areaId IN (6, 11, 12, 17, 18, 35) THEN d.harga ELSE 0 END) / 2), 0) AS milik_p4nj
     FROM penumpangs p
     JOIN dropspots d ON p.dropspotId = d.id
 ), 
