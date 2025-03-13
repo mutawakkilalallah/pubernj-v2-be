@@ -586,14 +586,12 @@ module.exports = {
           model: Penumpang,
           as: "penumpang",
           where: {
-            statusKepulangan: "Y",
-            ...(req.query.dropspot && {
-              dropspotId: req.query.dropspot,
-            }),
-            ...(req.query.armada && {
-              armadaId: req.query.armada,
-            }),
-          },
+  [Op.or]: [
+    { statusKepulangan: "Y" },
+    ...(req.query.dropspot && [{ dropspotId: req.query.dropspot }]),
+    ...(req.query.armada && [{ armadaId: req.query.armada }]),
+  ],
+},
           include: {
             model: Dropspot,
             as: "dropspot",
