@@ -132,12 +132,6 @@ JOIN total_bayar tb ON 1=1;
         limit,
         offset,
         order: [
-          [
-            sequelize.literal(
-              `CASE WHEN santri.niup = '11520802117' THEN 0 ELSE 1 END`
-            ),
-            "ASC",
-          ],
           ["updatedAt", "DESC"],
         ],
       });
