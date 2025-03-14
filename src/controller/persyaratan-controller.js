@@ -184,12 +184,14 @@ module.exports = {
                 ...(req.query.dropspot && { id: req.query.dropspot }),
                 ...(req.query.area && { areaId: req.query.area }),
               },
+              required: false,
               include: {
                 model: Area,
                 as: "area",
                 attributes: {
                   exclude: ["picInt", "hpPicInt", "picExt", "hpPicExt"],
                 },
+                required: false,
               },
             },
           },

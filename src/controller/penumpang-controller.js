@@ -602,6 +602,7 @@ module.exports = {
                 areaId: req.query.area,
               }),
             },
+            required: false,
           },
         },
       });
