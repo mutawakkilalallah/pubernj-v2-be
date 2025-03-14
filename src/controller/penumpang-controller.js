@@ -96,12 +96,6 @@ module.exports = {
         limit,
         offset,
         order: [
-          [
-            sequelize.literal(
-              `CASE WHEN santri.niup = '11520802117' THEN 0 ELSE 1 END`
-            ),
-            "ASC",
-          ],
           ["updatedAt", "DESC"],
         ],
       });
@@ -586,13 +580,9 @@ module.exports = {
           model: Penumpang,
           as: "penumpang",
           where: {
-            statusKepulangan: "Y",
-            ...(req.query.dropspot && {
-              dropspotId: req.query.dropspot,
-            }),
-            ...(req.query.armada && {
-              armadaId: req.query.armada,
-            }),
+          statusKepulangan: "Y",
+          ...(req.query.dropspot && { dropspotId: req.query.dropspot }),
+          ...(req.query.armada && { armadaId: req.query.armada }),
           },
           include: {
             model: Dropspot,

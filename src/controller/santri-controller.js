@@ -254,12 +254,6 @@ module.exports = {
         limit,
         offset,
         order: [
-          [
-            sequelize.literal(
-              `CASE WHEN niup = '11520802117' THEN 0 ELSE 1 END`
-            ),
-            "ASC",
-          ],
           [{ model: Penumpang, as: "penumpang" }, "updatedAt", "DESC"],
         ],
       });
