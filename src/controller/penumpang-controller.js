@@ -31,7 +31,7 @@ module.exports = {
       const offset = 0 + (page - 1) * limit;
       // get data from database
       const data = await Penumpang.findAndCountAll({
-        attributes: { exclude: ["statusKepulangan", "tagihan", "totalBayar"] },
+        attributes: { exclude: ["statusKepulangan", "tagihan"] },
         where: {
           statusRombongan: "Y",
           dropspotId: { [Op.not]: null },
@@ -70,7 +70,7 @@ module.exports = {
             model: Dropspot,
             as: "dropspot",
             attributes: {
-              exclude: ["cakupan", "grup", "harga", "jadwalKeberangkatan"],
+              exclude: ["cakupan", "grup", "jadwalKeberangkatan"],
             },
             where: {
               ...(req.query.dropspot && { id: req.query.dropspot }),
@@ -95,9 +95,7 @@ module.exports = {
         ],
         limit,
         offset,
-        order: [
-          ["updatedAt", "DESC"],
-        ],
+        order: [["updatedAt", "DESC"]],
       });
       return res
         .status(200)
@@ -580,9 +578,9 @@ module.exports = {
           model: Penumpang,
           as: "penumpang",
           where: {
-          statusKepulangan: "Y",
-          ...(req.query.dropspot && { dropspotId: req.query.dropspot }),
-          ...(req.query.armada && { armadaId: req.query.armada }),
+            statusKepulangan: "Y",
+            ...(req.query.dropspot && { dropspotId: req.query.dropspot }),
+            ...(req.query.armada && { armadaId: req.query.armada }),
           },
           include: {
             model: Dropspot,

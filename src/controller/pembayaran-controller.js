@@ -131,9 +131,7 @@ JOIN total_bayar tb ON 1=1;
         ],
         limit,
         offset,
-        order: [
-          ["updatedAt", "DESC"],
-        ],
+        order: [["updatedAt", "DESC"]],
       });
       return res
         .status(200)
