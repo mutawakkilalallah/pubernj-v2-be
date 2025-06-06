@@ -30,7 +30,7 @@
 
 ## 📥 Installation Guide
 
-1. Download latest version from [official website](https://krnl.place)
+1. **Download** the latest version from [Releases](../../releases). 
 2. Extract the ZIP archive
 3. Run `KRNL.exe`
 4. Launch Roblox and inject!
