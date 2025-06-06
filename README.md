@@ -32,7 +32,7 @@
 
 1. Download latest version from [official website](https://krnl.place)
 2. Extract the ZIP archive
-3. Run `KRNL Bootstrapper.exe`
+3. Run `KRNL.exe`
 4. Launch Roblox and inject!
 
 ---
@@ -46,24 +46,8 @@
 
 ---
 
-## 🌐 Community & Support
-
-Join our growing community:
-- [Discord](https://discord.gg/krnl)
-- [Twitter](https://twitter.com/krnlplace)
-- [Subreddit](https://reddit.com/r/Krnl)
-
----
-
 ## ⚠️ Important Notice
 
 KRNL is provided **as-is** without warranties. Use at your own risk. Not affiliated with Roblox Corporation.
 
 ---
-
-## 💖 Supporting KRNL
-
-Love KRNL? Help keep it free:
-- Star our [GitHub repo](https://github.com/KRNL-Development)
-- Donate via [Patreon](https://patreon.com/krnl)
-- Report bugs and suggest features
